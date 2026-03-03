@@ -1,0 +1,1 @@
+npx postgraphile -c 'postgres://postgres:greatpassword@localhost:5432/logdb' --watch --enhance-graphiql --dynamic-json

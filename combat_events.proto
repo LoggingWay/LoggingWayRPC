@@ -1,0 +1,163 @@
+syntax = "proto3";
+
+package combat_events;
+option go_package = "gen/combat_events";
+
+// Main combat event message
+// Main combat event message
+message CombatEvent {
+  int64 timestamp_epoch_ms = 1;
+  Entity source = 2;
+  Entity target = 3;
+  EventSnapshot source_snapshot = 4;
+  EventSnapshot target_snapshot = 5;
+  // Discriminated union using oneof
+  oneof event_data {
+    StatusEffectData status_effect = 10;
+    HoTData hot = 11;
+    DoTData dot = 12;
+    DamageTakenData damage_taken = 13;
+    HealedData healed = 14;
+    DeathData death = 15;
+    EncounterStartData encounter_start = 16;
+    EncounterEndData encounter_end = 17;
+    ZoneChangeData zone_change = 18;
+  }
+}
+
+message Entity {
+  string name = 1;
+  uint64 gameobject_id = 2;
+  uint32 base_id = 3;
+  ObjectKind objectkind = 4;
+}
+
+message EventSnapshot {
+  uint32 current_hp = 1;
+  uint32 max_hp = 2;
+  repeated StatusEffectSnapshot status_effects = 3;
+  uint32 barrier_percent = 4;
+}
+
+message StatusEffectSnapshot {
+  uint32 id = 1;
+  uint32 source_id = 2;
+  uint32 stack_count = 3;
+}
+
+// Event-specific data types
+message StatusEffectData {
+  uint32 id = 1;
+  uint32 stack_count = 2;
+  uint32 icon = 3;  // 0 means null
+  float duration = 4;
+  StatusCategory category = 5;
+}
+
+message HoTData {
+  uint32 amount = 1;
+}
+
+message DoTData {
+  uint32 amount = 1;
+}
+
+message DamageTakenData {
+  uint32 amount = 1;
+  uint32 action_id = 2;
+  bool crit = 3;
+  bool direct_hit = 4;
+  DamageType damage_type = 5;
+  ActionType display_type = 6;
+  bool parried = 7;
+  bool blocked = 8;
+  uint32 icon = 9;  // 0 means null
+}
+
+message HealedData {
+  uint32 amount = 1;
+  uint32 action_id = 2;
+  bool crit = 3;
+  uint32 icon = 4;  // 0 means null
+}
+
+message DeathData {
+  // Empty message for death events
+}
+
+message EncounterStartData {
+  uint32 territorytype = 1;
+}
+
+message EncounterEndData {
+  uint32 territorytype = 1;
+}
+
+message ZoneChangeData{
+    uint32 territorytype = 1;
+}
+/* =======================
+   Enums
+   ======================= */
+
+enum StatusCategory {
+  STATUS_CATEGORY_NONE = 0;
+  STATUS_CATEGORY_BENEFICIAL = 1;
+  STATUS_CATEGORY_DETRIMENTAL = 2;
+}
+
+enum DamageType {
+  DAMAGE_TYPE_UNKNOWN = 0;
+  DAMAGE_TYPE_SLASHING = 1;
+  DAMAGE_TYPE_PIERCING = 2;
+  DAMAGE_TYPE_BLUNT = 3;
+  DAMAGE_TYPE_SHOT = 4;
+  DAMAGE_TYPE_MAGIC = 5;
+  DAMAGE_TYPE_BREATH = 6;
+  DAMAGE_TYPE_PHYSICAL = 7;
+  DAMAGE_TYPE_LIMIT_BREAK = 8;
+}
+
+enum ActionType {
+  ACTION_TYPE_NONE = 0;
+  ACTION_TYPE_ACTION = 1;
+  ACTION_TYPE_ITEM = 2;
+  ACTION_TYPE_EVENT_ITEM = 3;
+  ACTION_TYPE_EVENT_ACTION = 4;
+  ACTION_TYPE_GENERAL_ACTION = 5;
+  ACTION_TYPE_BUDDY_ACTION = 6;
+  ACTION_TYPE_MAIN_COMMAND = 7;
+  ACTION_TYPE_COMPANION = 8;
+  ACTION_TYPE_CRAFT_ACTION = 9;
+  ACTION_TYPE_UNK_10 = 10;
+  ACTION_TYPE_PET_ACTION = 11;
+  ACTION_TYPE_UNK_12 = 12;
+  ACTION_TYPE_MOUNT = 13;
+  ACTION_TYPE_PVP_ACTION = 14;
+  ACTION_TYPE_FIELD_MARKER = 15;
+  ACTION_TYPE_CHOCOBO_RACE_ABILITY = 16;
+  ACTION_TYPE_CHOCOBO_RACE_ITEM = 17;
+  ACTION_TYPE_UNK_18 = 18;
+  ACTION_TYPE_BGC_ARMY_ACTION = 19;
+  ACTION_TYPE_ORNAMENT = 20;
+}
+
+enum ObjectKind
+{
+    None = 0;
+    Player = 1;
+    BattleNpc = 2;//for our purposes others values past 3 should be impossible,but who knows...
+    EventNpc = 3;
+    Treasure = 4;
+    Aetheryte = 5;
+    GatheringPoint = 6;
+    EventObj = 7;
+    MountType = 8;
+    Companion = 9;
+    Retainer = 10;
+    Area = 11;
+    Housing = 12;
+    Cutscene = 13;
+    CardStand = 14;
+    Ornament = 15;
+}

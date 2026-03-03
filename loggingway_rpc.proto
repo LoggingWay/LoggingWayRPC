@@ -1,0 +1,61 @@
+syntax = "proto3";
+
+package loggingway_rpc;
+import "combat_events.proto";
+option go_package = "gen/loggingway_rpc";
+
+
+
+//rpc
+service Loggingway {
+
+//generate a xivauth redirect
+rpc GetXivAuthRedirect (GetXivAuthRedirectRequest) returns (GetXivAuthRedirectReply) {}
+//client send a code from xivauth, gets a jwt
+rpc Login (LoginRequest) returns (LoginReply) {}
+
+rpc CreateNewReport (NewReportRequest) returns (NewReportReply) {}
+
+rpc EncounterIngest (NewEncounterRequest) returns (NewEncounterReply) {}
+
+rpc CombatEventIngest(stream combat_events.CombatEvent) returns (CombatEventIngestReturn) {}
+
+}
+
+message GetXivAuthRedirectRequest{
+    
+}
+
+message GetXivAuthRedirectReply{
+    string xivauthuri = 1;//state is included in the uri
+}
+
+message LoginRequest{
+    string code = 1;
+    string state = 2;
+}
+
+message LoginReply{
+    string sessionID = 1;
+}
+
+message NewReportRequest{
+    uint32 visbility = 1;
+}
+
+message NewReportReply{
+    int64 reportid = 1;
+}
+
+message NewEncounterRequest{
+    int64 report_id = 1;
+    repeated combat_events.CombatEvent events = 2;
+}
+
+message NewEncounterReply{
+    uint32 code =1;
+}
+
+message CombatEventIngestReturn{
+  uint32 code = 1;
+}
