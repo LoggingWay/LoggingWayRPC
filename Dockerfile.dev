@@ -1,0 +1,15 @@
+FROM golang:1.26.0-alpine
+
+WORKDIR /app
+
+# Install dependencies (air for live reload is optional — remove if not needed)
+RUN apk add --no-cache git
+
+# Copy go mod files first for layer caching
+COPY go.mod ./
+COPY go.sum ./
+RUN go mod download
+
+# Source code is mounted via volume at runtime, so no COPY . . needed here
+
+CMD ["go", "run", "."]

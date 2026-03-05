@@ -70,6 +70,7 @@ func pgxconfidk() *pgxpool.Config {
 	return dbConfig
 }
 func newServer(redisesion *redisservice.RedisSessionService) *loggingWayServer {
+	fmt.Println("Initializing xivauth service...")
 	xivs, err := xivauth.NewService(os.Getenv("XIVAUTH_CLIENT_ID"), os.Getenv("XIVAUTH_CLIENT_SECRET"),
 		os.Getenv("XIVAUTH_LOGIN_CALLBACK"),
 		[]string{
@@ -79,8 +80,9 @@ func newServer(redisesion *redisservice.RedisSessionService) *loggingWayServer {
 	if err != nil {
 		log.Fatalf("Failed to initialize xivauthservice: %v", err)
 	}
-	rediserv := redisservice.NewPublisher("localhost:6379", "reports_stream")
-	redistate := redisservice.NewRedisStateStoreService("localhost:6379",
+	fmt.Println("Initializing redis related services...")
+	rediserv := redisservice.NewPublisher(os.Getenv("REDIS_ADDR"), "reports_stream")
+	redistate := redisservice.NewRedisStateStoreService(os.Getenv("REDIS_ADDR"),
 		"",
 		0,
 		"state",
@@ -104,6 +106,7 @@ func newServer(redisesion *redisservice.RedisSessionService) *loggingWayServer {
 		Sessioner:      redisesion,
 		Stater:         redistate,
 		connpool:       connPool}
+	fmt.Println("gRPC server init completed")
 	return s
 }
 
@@ -221,12 +224,16 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
-	redisesion := redisservice.NewRedisSessionService("localhost:6379",
+	//the redis session service needs to be created outside the grpc server, so we can add
+	//the auth function as middleware
+	fmt.Println("Initializing Redis session service...")
+	redisesion := redisservice.NewRedisSessionService(os.Getenv("REDIS_ADDR"),
 		"",
 		0,
 		"session",
 		24*time.Hour,
 	)
+	fmt.Println("Done")
 	grpcServer := grpc.NewServer(grpc.ChainUnaryInterceptor(
 		auth.UnaryServerInterceptor(redisesion.AuthFunc),
 	),
