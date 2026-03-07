@@ -1,0 +1,3 @@
+[submodule "Proto"]
+	path = Proto
+	url = https://github.com/LoggingWay/Proto.git
