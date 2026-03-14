@@ -328,8 +328,56 @@ func (ObjectKind) EnumDescriptor() ([]byte, []int) {
 	return file_combat_events_proto_rawDescGZIP(), []int{3}
 }
 
+// past this line, non game related Enums
+type EncounterEndKind int32
+
+const (
+	EncounterEndKind_Clear EncounterEndKind = 0
+	EncounterEndKind_Wipe  EncounterEndKind = 1
+)
+
+// Enum value maps for EncounterEndKind.
+var (
+	EncounterEndKind_name = map[int32]string{
+		0: "Clear",
+		1: "Wipe",
+	}
+	EncounterEndKind_value = map[string]int32{
+		"Clear": 0,
+		"Wipe":  1,
+	}
+)
+
+func (x EncounterEndKind) Enum() *EncounterEndKind {
+	p := new(EncounterEndKind)
+	*p = x
+	return p
+}
+
+func (x EncounterEndKind) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (EncounterEndKind) Descriptor() protoreflect.EnumDescriptor {
+	return file_combat_events_proto_enumTypes[4].Descriptor()
+}
+
+func (EncounterEndKind) Type() protoreflect.EnumType {
+	return &file_combat_events_proto_enumTypes[4]
+}
+
+func (x EncounterEndKind) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use EncounterEndKind.Descriptor instead.
+func (EncounterEndKind) EnumDescriptor() ([]byte, []int) {
+	return file_combat_events_proto_rawDescGZIP(), []int{4}
+}
+
 // Main combat event message
-// Main combat event message
+// Combat event should map to a game event happening either via packet receive or as part
+// of the game processing it
 type CombatEvent struct {
 	state            protoimpl.MessageState `protogen:"open.v1"`
 	TimestampEpochMs int64                  `protobuf:"varint,1,opt,name=timestamp_epoch_ms,json=timestampEpochMs,proto3" json:"timestamp_epoch_ms,omitempty"`
@@ -350,6 +398,7 @@ type CombatEvent struct {
 	//	*CombatEvent_EncounterStart
 	//	*CombatEvent_EncounterEnd
 	//	*CombatEvent_ZoneChange
+	//	*CombatEvent_PlayerJoin
 	EventData     isCombatEvent_EventData `protobuf_oneof:"event_data"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -508,6 +557,15 @@ func (x *CombatEvent) GetZoneChange() *ZoneChangeData {
 	return nil
 }
 
+func (x *CombatEvent) GetPlayerJoin() *PlayerEnterCombat {
+	if x != nil {
+		if x, ok := x.EventData.(*CombatEvent_PlayerJoin); ok {
+			return x.PlayerJoin
+		}
+	}
+	return nil
+}
+
 type isCombatEvent_EventData interface {
 	isCombatEvent_EventData()
 }
@@ -548,6 +606,10 @@ type CombatEvent_ZoneChange struct {
 	ZoneChange *ZoneChangeData `protobuf:"bytes,18,opt,name=zone_change,json=zoneChange,proto3,oneof"`
 }
 
+type CombatEvent_PlayerJoin struct {
+	PlayerJoin *PlayerEnterCombat `protobuf:"bytes,19,opt,name=player_join,json=playerJoin,proto3,oneof"`
+}
+
 func (*CombatEvent_StatusEffect) isCombatEvent_EventData() {}
 
 func (*CombatEvent_Hot) isCombatEvent_EventData() {}
@@ -566,12 +628,13 @@ func (*CombatEvent_EncounterEnd) isCombatEvent_EventData() {}
 
 func (*CombatEvent_ZoneChange) isCombatEvent_EventData() {}
 
+func (*CombatEvent_PlayerJoin) isCombatEvent_EventData() {}
+
 type Entity struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	GameobjectId  uint64                 `protobuf:"varint,2,opt,name=gameobject_id,json=gameobjectId,proto3" json:"gameobject_id,omitempty"`
-	BaseId        uint32                 `protobuf:"varint,3,opt,name=base_id,json=baseId,proto3" json:"base_id,omitempty"`
-	Objectkind    ObjectKind             `protobuf:"varint,4,opt,name=objectkind,proto3,enum=combat_events.ObjectKind" json:"objectkind,omitempty"`
+	GameobjectId  uint64                 `protobuf:"varint,1,opt,name=gameobject_id,json=gameobjectId,proto3" json:"gameobject_id,omitempty"`
+	BaseId        uint32                 `protobuf:"varint,2,opt,name=base_id,json=baseId,proto3" json:"base_id,omitempty"`
+	Objectkind    ObjectKind             `protobuf:"varint,3,opt,name=objectkind,proto3,enum=combat_events.ObjectKind" json:"objectkind,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -604,13 +667,6 @@ func (x *Entity) ProtoReflect() protoreflect.Message {
 // Deprecated: Use Entity.ProtoReflect.Descriptor instead.
 func (*Entity) Descriptor() ([]byte, []int) {
 	return file_combat_events_proto_rawDescGZIP(), []int{1}
-}
-
-func (x *Entity) GetName() string {
-	if x != nil {
-		return x.Name
-	}
-	return ""
 }
 
 func (x *Entity) GetGameobjectId() uint64 {
@@ -938,6 +994,7 @@ type DamageTakenData struct {
 	Parried       bool                   `protobuf:"varint,7,opt,name=parried,proto3" json:"parried,omitempty"`
 	Blocked       bool                   `protobuf:"varint,8,opt,name=blocked,proto3" json:"blocked,omitempty"`
 	Icon          uint32                 `protobuf:"varint,9,opt,name=icon,proto3" json:"icon,omitempty"` // 0 means null
+	MainTarget    bool                   `protobuf:"varint,10,opt,name=main_target,json=mainTarget,proto3" json:"main_target,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1033,6 +1090,13 @@ func (x *DamageTakenData) GetIcon() uint32 {
 		return x.Icon
 	}
 	return 0
+}
+
+func (x *DamageTakenData) GetMainTarget() bool {
+	if x != nil {
+		return x.MainTarget
+	}
+	return false
 }
 
 type HealedData struct {
@@ -1186,6 +1250,7 @@ func (x *EncounterStartData) GetTerritorytype() uint32 {
 type EncounterEndData struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Territorytype uint32                 `protobuf:"varint,1,opt,name=territorytype,proto3" json:"territorytype,omitempty"`
+	Reason        EncounterEndKind       `protobuf:"varint,2,opt,name=reason,proto3,enum=combat_events.EncounterEndKind" json:"reason,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1225,6 +1290,13 @@ func (x *EncounterEndData) GetTerritorytype() uint32 {
 		return x.Territorytype
 	}
 	return 0
+}
+
+func (x *EncounterEndData) GetReason() EncounterEndKind {
+	if x != nil {
+		return x.Reason
+	}
+	return EncounterEndKind_Clear
 }
 
 type ZoneChangeData struct {
@@ -1271,11 +1343,151 @@ func (x *ZoneChangeData) GetTerritorytype() uint32 {
 	return 0
 }
 
+type PlayerEnterCombat struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	HomeworldId   uint32                 `protobuf:"varint,2,opt,name=homeworld_id,json=homeworldId,proto3" json:"homeworld_id,omitempty"`
+	ContentId     uint64                 `protobuf:"varint,3,opt,name=content_id,json=contentId,proto3" json:"content_id,omitempty"`
+	GameobjectId  uint64                 `protobuf:"varint,4,opt,name=gameobject_id,json=gameobjectId,proto3" json:"gameobject_id,omitempty"`
+	JobId         uint32                 `protobuf:"varint,5,opt,name=job_id,json=jobId,proto3" json:"job_id,omitempty"`
+	Level         uint32                 `protobuf:"varint,6,opt,name=level,proto3" json:"level,omitempty"`
+	AttackPower   uint32                 `protobuf:"varint,7,opt,name=attack_power,json=attackPower,proto3" json:"attack_power,omitempty"`
+	Skillspeed    uint32                 `protobuf:"varint,8,opt,name=skillspeed,proto3" json:"skillspeed,omitempty"`
+	Spellspeed    uint32                 `protobuf:"varint,9,opt,name=spellspeed,proto3" json:"spellspeed,omitempty"`
+	Tenacity      uint32                 `protobuf:"varint,10,opt,name=tenacity,proto3" json:"tenacity,omitempty"`
+	Determination uint32                 `protobuf:"varint,11,opt,name=determination,proto3" json:"determination,omitempty"`
+	CriticalHit   uint32                 `protobuf:"varint,12,opt,name=criticalHit,proto3" json:"criticalHit,omitempty"`
+	DirectHit     uint32                 `protobuf:"varint,13,opt,name=directHit,proto3" json:"directHit,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PlayerEnterCombat) Reset() {
+	*x = PlayerEnterCombat{}
+	mi := &file_combat_events_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PlayerEnterCombat) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PlayerEnterCombat) ProtoMessage() {}
+
+func (x *PlayerEnterCombat) ProtoReflect() protoreflect.Message {
+	mi := &file_combat_events_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PlayerEnterCombat.ProtoReflect.Descriptor instead.
+func (*PlayerEnterCombat) Descriptor() ([]byte, []int) {
+	return file_combat_events_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *PlayerEnterCombat) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *PlayerEnterCombat) GetHomeworldId() uint32 {
+	if x != nil {
+		return x.HomeworldId
+	}
+	return 0
+}
+
+func (x *PlayerEnterCombat) GetContentId() uint64 {
+	if x != nil {
+		return x.ContentId
+	}
+	return 0
+}
+
+func (x *PlayerEnterCombat) GetGameobjectId() uint64 {
+	if x != nil {
+		return x.GameobjectId
+	}
+	return 0
+}
+
+func (x *PlayerEnterCombat) GetJobId() uint32 {
+	if x != nil {
+		return x.JobId
+	}
+	return 0
+}
+
+func (x *PlayerEnterCombat) GetLevel() uint32 {
+	if x != nil {
+		return x.Level
+	}
+	return 0
+}
+
+func (x *PlayerEnterCombat) GetAttackPower() uint32 {
+	if x != nil {
+		return x.AttackPower
+	}
+	return 0
+}
+
+func (x *PlayerEnterCombat) GetSkillspeed() uint32 {
+	if x != nil {
+		return x.Skillspeed
+	}
+	return 0
+}
+
+func (x *PlayerEnterCombat) GetSpellspeed() uint32 {
+	if x != nil {
+		return x.Spellspeed
+	}
+	return 0
+}
+
+func (x *PlayerEnterCombat) GetTenacity() uint32 {
+	if x != nil {
+		return x.Tenacity
+	}
+	return 0
+}
+
+func (x *PlayerEnterCombat) GetDetermination() uint32 {
+	if x != nil {
+		return x.Determination
+	}
+	return 0
+}
+
+func (x *PlayerEnterCombat) GetCriticalHit() uint32 {
+	if x != nil {
+		return x.CriticalHit
+	}
+	return 0
+}
+
+func (x *PlayerEnterCombat) GetDirectHit() uint32 {
+	if x != nil {
+		return x.DirectHit
+	}
+	return 0
+}
+
 var File_combat_events_proto protoreflect.FileDescriptor
 
 const file_combat_events_proto_rawDesc = "" +
 	"\n" +
-	"\x13combat_events.proto\x12\rcombat_events\"\xd9\x06\n" +
+	"\x13combat_events.proto\x12\rcombat_events\"\x9e\a\n" +
 	"\vCombatEvent\x12,\n" +
 	"\x12timestamp_epoch_ms\x18\x01 \x01(\x03R\x10timestampEpochMs\x12-\n" +
 	"\x06source\x18\x02 \x01(\v2\x15.combat_events.EntityR\x06source\x12-\n" +
@@ -1292,15 +1504,16 @@ const file_combat_events_proto_rawDesc = "" +
 	"\x0fencounter_start\x18\x10 \x01(\v2!.combat_events.EncounterStartDataH\x00R\x0eencounterStart\x12F\n" +
 	"\rencounter_end\x18\x11 \x01(\v2\x1f.combat_events.EncounterEndDataH\x00R\fencounterEnd\x12@\n" +
 	"\vzone_change\x18\x12 \x01(\v2\x1d.combat_events.ZoneChangeDataH\x00R\n" +
-	"zoneChangeB\f\n" +
+	"zoneChange\x12C\n" +
+	"\vplayer_join\x18\x13 \x01(\v2 .combat_events.PlayerEnterCombatH\x00R\n" +
+	"playerJoinB\f\n" +
 	"\n" +
-	"event_data\"\x95\x01\n" +
-	"\x06Entity\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\x12#\n" +
-	"\rgameobject_id\x18\x02 \x01(\x04R\fgameobjectId\x12\x17\n" +
-	"\abase_id\x18\x03 \x01(\rR\x06baseId\x129\n" +
+	"event_data\"\x81\x01\n" +
+	"\x06Entity\x12#\n" +
+	"\rgameobject_id\x18\x01 \x01(\x04R\fgameobjectId\x12\x17\n" +
+	"\abase_id\x18\x02 \x01(\rR\x06baseId\x129\n" +
 	"\n" +
-	"objectkind\x18\x04 \x01(\x0e2\x19.combat_events.ObjectKindR\n" +
+	"objectkind\x18\x03 \x01(\x0e2\x19.combat_events.ObjectKindR\n" +
 	"objectkind\"\xba\x01\n" +
 	"\rEventSnapshot\x12\x1d\n" +
 	"\n" +
@@ -1323,7 +1536,7 @@ const file_combat_events_proto_rawDesc = "" +
 	"\aHoTData\x12\x16\n" +
 	"\x06amount\x18\x01 \x01(\rR\x06amount\"!\n" +
 	"\aDoTData\x12\x16\n" +
-	"\x06amount\x18\x01 \x01(\rR\x06amount\"\xbb\x02\n" +
+	"\x06amount\x18\x01 \x01(\rR\x06amount\"\xdc\x02\n" +
 	"\x0fDamageTakenData\x12\x16\n" +
 	"\x06amount\x18\x01 \x01(\rR\x06amount\x12\x1b\n" +
 	"\taction_id\x18\x02 \x01(\rR\bactionId\x12\x12\n" +
@@ -1335,7 +1548,10 @@ const file_combat_events_proto_rawDesc = "" +
 	"\fdisplay_type\x18\x06 \x01(\x0e2\x19.combat_events.ActionTypeR\vdisplayType\x12\x18\n" +
 	"\aparried\x18\a \x01(\bR\aparried\x12\x18\n" +
 	"\ablocked\x18\b \x01(\bR\ablocked\x12\x12\n" +
-	"\x04icon\x18\t \x01(\rR\x04icon\"i\n" +
+	"\x04icon\x18\t \x01(\rR\x04icon\x12\x1f\n" +
+	"\vmain_target\x18\n" +
+	" \x01(\bR\n" +
+	"mainTarget\"i\n" +
 	"\n" +
 	"HealedData\x12\x16\n" +
 	"\x06amount\x18\x01 \x01(\rR\x06amount\x12\x1b\n" +
@@ -1344,11 +1560,32 @@ const file_combat_events_proto_rawDesc = "" +
 	"\x04icon\x18\x04 \x01(\rR\x04icon\"\v\n" +
 	"\tDeathData\":\n" +
 	"\x12EncounterStartData\x12$\n" +
-	"\rterritorytype\x18\x01 \x01(\rR\rterritorytype\"8\n" +
+	"\rterritorytype\x18\x01 \x01(\rR\rterritorytype\"q\n" +
 	"\x10EncounterEndData\x12$\n" +
-	"\rterritorytype\x18\x01 \x01(\rR\rterritorytype\"6\n" +
+	"\rterritorytype\x18\x01 \x01(\rR\rterritorytype\x127\n" +
+	"\x06reason\x18\x02 \x01(\x0e2\x1f.combat_events.EncounterEndKindR\x06reason\"6\n" +
 	"\x0eZoneChangeData\x12$\n" +
-	"\rterritorytype\x18\x01 \x01(\rR\rterritorytype*k\n" +
+	"\rterritorytype\x18\x01 \x01(\rR\rterritorytype\"\xa0\x03\n" +
+	"\x11PlayerEnterCombat\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12!\n" +
+	"\fhomeworld_id\x18\x02 \x01(\rR\vhomeworldId\x12\x1d\n" +
+	"\n" +
+	"content_id\x18\x03 \x01(\x04R\tcontentId\x12#\n" +
+	"\rgameobject_id\x18\x04 \x01(\x04R\fgameobjectId\x12\x15\n" +
+	"\x06job_id\x18\x05 \x01(\rR\x05jobId\x12\x14\n" +
+	"\x05level\x18\x06 \x01(\rR\x05level\x12!\n" +
+	"\fattack_power\x18\a \x01(\rR\vattackPower\x12\x1e\n" +
+	"\n" +
+	"skillspeed\x18\b \x01(\rR\n" +
+	"skillspeed\x12\x1e\n" +
+	"\n" +
+	"spellspeed\x18\t \x01(\rR\n" +
+	"spellspeed\x12\x1a\n" +
+	"\btenacity\x18\n" +
+	" \x01(\rR\btenacity\x12$\n" +
+	"\rdetermination\x18\v \x01(\rR\rdetermination\x12 \n" +
+	"\vcriticalHit\x18\f \x01(\rR\vcriticalHit\x12\x1c\n" +
+	"\tdirectHit\x18\r \x01(\rR\tdirectHit*k\n" +
 	"\x0eStatusCategory\x12\x18\n" +
 	"\x14STATUS_CATEGORY_NONE\x10\x00\x12\x1e\n" +
 	"\x1aSTATUS_CATEGORY_BENEFICIAL\x10\x01\x12\x1f\n" +
@@ -1407,7 +1644,10 @@ const file_combat_events_proto_rawDesc = "" +
 	"\aHousing\x10\f\x12\f\n" +
 	"\bCutscene\x10\r\x12\r\n" +
 	"\tCardStand\x10\x0e\x12\f\n" +
-	"\bOrnament\x10\x0fB\x13Z\x11gen/combat_eventsb\x06proto3"
+	"\bOrnament\x10\x0f*'\n" +
+	"\x10EncounterEndKind\x12\t\n" +
+	"\x05Clear\x10\x00\x12\b\n" +
+	"\x04Wipe\x10\x01B,Z\x11gen/combat_events\xaa\x02\x16LoggingWayPlugin.Protob\x06proto3"
 
 var (
 	file_combat_events_proto_rawDescOnce sync.Once
@@ -1421,51 +1661,55 @@ func file_combat_events_proto_rawDescGZIP() []byte {
 	return file_combat_events_proto_rawDescData
 }
 
-var file_combat_events_proto_enumTypes = make([]protoimpl.EnumInfo, 4)
-var file_combat_events_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
+var file_combat_events_proto_enumTypes = make([]protoimpl.EnumInfo, 5)
+var file_combat_events_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
 var file_combat_events_proto_goTypes = []any{
 	(StatusCategory)(0),          // 0: combat_events.StatusCategory
 	(DamageType)(0),              // 1: combat_events.DamageType
 	(ActionType)(0),              // 2: combat_events.ActionType
 	(ObjectKind)(0),              // 3: combat_events.ObjectKind
-	(*CombatEvent)(nil),          // 4: combat_events.CombatEvent
-	(*Entity)(nil),               // 5: combat_events.Entity
-	(*EventSnapshot)(nil),        // 6: combat_events.EventSnapshot
-	(*StatusEffectSnapshot)(nil), // 7: combat_events.StatusEffectSnapshot
-	(*StatusEffectData)(nil),     // 8: combat_events.StatusEffectData
-	(*HoTData)(nil),              // 9: combat_events.HoTData
-	(*DoTData)(nil),              // 10: combat_events.DoTData
-	(*DamageTakenData)(nil),      // 11: combat_events.DamageTakenData
-	(*HealedData)(nil),           // 12: combat_events.HealedData
-	(*DeathData)(nil),            // 13: combat_events.DeathData
-	(*EncounterStartData)(nil),   // 14: combat_events.EncounterStartData
-	(*EncounterEndData)(nil),     // 15: combat_events.EncounterEndData
-	(*ZoneChangeData)(nil),       // 16: combat_events.ZoneChangeData
+	(EncounterEndKind)(0),        // 4: combat_events.EncounterEndKind
+	(*CombatEvent)(nil),          // 5: combat_events.CombatEvent
+	(*Entity)(nil),               // 6: combat_events.Entity
+	(*EventSnapshot)(nil),        // 7: combat_events.EventSnapshot
+	(*StatusEffectSnapshot)(nil), // 8: combat_events.StatusEffectSnapshot
+	(*StatusEffectData)(nil),     // 9: combat_events.StatusEffectData
+	(*HoTData)(nil),              // 10: combat_events.HoTData
+	(*DoTData)(nil),              // 11: combat_events.DoTData
+	(*DamageTakenData)(nil),      // 12: combat_events.DamageTakenData
+	(*HealedData)(nil),           // 13: combat_events.HealedData
+	(*DeathData)(nil),            // 14: combat_events.DeathData
+	(*EncounterStartData)(nil),   // 15: combat_events.EncounterStartData
+	(*EncounterEndData)(nil),     // 16: combat_events.EncounterEndData
+	(*ZoneChangeData)(nil),       // 17: combat_events.ZoneChangeData
+	(*PlayerEnterCombat)(nil),    // 18: combat_events.PlayerEnterCombat
 }
 var file_combat_events_proto_depIdxs = []int32{
-	5,  // 0: combat_events.CombatEvent.source:type_name -> combat_events.Entity
-	5,  // 1: combat_events.CombatEvent.target:type_name -> combat_events.Entity
-	6,  // 2: combat_events.CombatEvent.source_snapshot:type_name -> combat_events.EventSnapshot
-	6,  // 3: combat_events.CombatEvent.target_snapshot:type_name -> combat_events.EventSnapshot
-	8,  // 4: combat_events.CombatEvent.status_effect:type_name -> combat_events.StatusEffectData
-	9,  // 5: combat_events.CombatEvent.hot:type_name -> combat_events.HoTData
-	10, // 6: combat_events.CombatEvent.dot:type_name -> combat_events.DoTData
-	11, // 7: combat_events.CombatEvent.damage_taken:type_name -> combat_events.DamageTakenData
-	12, // 8: combat_events.CombatEvent.healed:type_name -> combat_events.HealedData
-	13, // 9: combat_events.CombatEvent.death:type_name -> combat_events.DeathData
-	14, // 10: combat_events.CombatEvent.encounter_start:type_name -> combat_events.EncounterStartData
-	15, // 11: combat_events.CombatEvent.encounter_end:type_name -> combat_events.EncounterEndData
-	16, // 12: combat_events.CombatEvent.zone_change:type_name -> combat_events.ZoneChangeData
-	3,  // 13: combat_events.Entity.objectkind:type_name -> combat_events.ObjectKind
-	7,  // 14: combat_events.EventSnapshot.status_effects:type_name -> combat_events.StatusEffectSnapshot
-	0,  // 15: combat_events.StatusEffectData.category:type_name -> combat_events.StatusCategory
-	1,  // 16: combat_events.DamageTakenData.damage_type:type_name -> combat_events.DamageType
-	2,  // 17: combat_events.DamageTakenData.display_type:type_name -> combat_events.ActionType
-	18, // [18:18] is the sub-list for method output_type
-	18, // [18:18] is the sub-list for method input_type
-	18, // [18:18] is the sub-list for extension type_name
-	18, // [18:18] is the sub-list for extension extendee
-	0,  // [0:18] is the sub-list for field type_name
+	6,  // 0: combat_events.CombatEvent.source:type_name -> combat_events.Entity
+	6,  // 1: combat_events.CombatEvent.target:type_name -> combat_events.Entity
+	7,  // 2: combat_events.CombatEvent.source_snapshot:type_name -> combat_events.EventSnapshot
+	7,  // 3: combat_events.CombatEvent.target_snapshot:type_name -> combat_events.EventSnapshot
+	9,  // 4: combat_events.CombatEvent.status_effect:type_name -> combat_events.StatusEffectData
+	10, // 5: combat_events.CombatEvent.hot:type_name -> combat_events.HoTData
+	11, // 6: combat_events.CombatEvent.dot:type_name -> combat_events.DoTData
+	12, // 7: combat_events.CombatEvent.damage_taken:type_name -> combat_events.DamageTakenData
+	13, // 8: combat_events.CombatEvent.healed:type_name -> combat_events.HealedData
+	14, // 9: combat_events.CombatEvent.death:type_name -> combat_events.DeathData
+	15, // 10: combat_events.CombatEvent.encounter_start:type_name -> combat_events.EncounterStartData
+	16, // 11: combat_events.CombatEvent.encounter_end:type_name -> combat_events.EncounterEndData
+	17, // 12: combat_events.CombatEvent.zone_change:type_name -> combat_events.ZoneChangeData
+	18, // 13: combat_events.CombatEvent.player_join:type_name -> combat_events.PlayerEnterCombat
+	3,  // 14: combat_events.Entity.objectkind:type_name -> combat_events.ObjectKind
+	8,  // 15: combat_events.EventSnapshot.status_effects:type_name -> combat_events.StatusEffectSnapshot
+	0,  // 16: combat_events.StatusEffectData.category:type_name -> combat_events.StatusCategory
+	1,  // 17: combat_events.DamageTakenData.damage_type:type_name -> combat_events.DamageType
+	2,  // 18: combat_events.DamageTakenData.display_type:type_name -> combat_events.ActionType
+	4,  // 19: combat_events.EncounterEndData.reason:type_name -> combat_events.EncounterEndKind
+	20, // [20:20] is the sub-list for method output_type
+	20, // [20:20] is the sub-list for method input_type
+	20, // [20:20] is the sub-list for extension type_name
+	20, // [20:20] is the sub-list for extension extendee
+	0,  // [0:20] is the sub-list for field type_name
 }
 
 func init() { file_combat_events_proto_init() }
@@ -1483,14 +1727,15 @@ func file_combat_events_proto_init() {
 		(*CombatEvent_EncounterStart)(nil),
 		(*CombatEvent_EncounterEnd)(nil),
 		(*CombatEvent_ZoneChange)(nil),
+		(*CombatEvent_PlayerJoin)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_combat_events_proto_rawDesc), len(file_combat_events_proto_rawDesc)),
-			NumEnums:      4,
-			NumMessages:   13,
+			NumEnums:      5,
+			NumMessages:   14,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
