@@ -88,8 +88,8 @@ func (s *RedisSessionService) Close() error {
 	return s.client.Close()
 }
 
-var redirectMethod = "/loggingway_rpc.Loggingway/GetXivAuthRedirect"
-var loginMethod = "/loggingway_rpc.Loggingway/Login"
+var redirectMethod = "/combat_events.Loggingway/GetXivAuthRedirect"
+var loginMethod = "/combat_events.Loggingway/Login"
 var ignoreMethod = []string{redirectMethod, loginMethod}
 
 func (s *RedisSessionService) AuthFunc(ctx context.Context) (context.Context, error) {
