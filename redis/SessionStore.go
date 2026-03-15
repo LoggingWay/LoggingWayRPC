@@ -18,9 +18,10 @@ import (
 )
 
 type RedisSessionService struct {
-	client *redis.Client
-	prefix string
-	ttl    time.Duration
+	client         *redis.Client
+	xivauthservice *xivauth.XivAuthService
+	prefix         string
+	ttl            time.Duration
 }
 
 type UserSession struct {
@@ -29,7 +30,7 @@ type UserSession struct {
 	AccessToken oauth2.Token
 }
 
-func NewRedisSessionService(addr string, password string, db int, prefix string, ttl time.Duration) *RedisSessionService {
+func NewRedisSessionService(addr string, password string, db int, prefix string, ttl time.Duration, xivauthserv *xivauth.XivAuthService) *RedisSessionService {
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     addr,
 		Password: password,
@@ -111,9 +112,7 @@ func (s *RedisSessionService) AuthFunc(ctx context.Context) (context.Context, er
 	// validate token and retrieve the userID
 	sessionData, err := s.GetSession(ctx, token[0])
 	if err != nil {
-		return nil, status.Error(codes.Unauthenticated, "invalid token: %v")
+		return nil, status.Error(codes.Unauthenticated, "invalid token")
 	}
-
-	//TODO, check if the access token is still valid, if not use refresh token to get another, and if both are expired, kill this session and returns an error
 	return context.WithValue(ctx, "sessionData", sessionData), nil
 }

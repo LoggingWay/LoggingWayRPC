@@ -89,7 +89,7 @@ func pgxconfidk() *pgxpool.Config {
 	dbConfig.ConnConfig.ConnectTimeout = defaultConnectTimeout
 	return dbConfig
 }
-func newServer(redisesion *redisservice.RedisSessionService) *loggingWayServer {
+func newServer() *loggingWayServer {
 	fmt.Println("Initializing xivauth service...")
 	xivs, err := xivauth.NewService(os.Getenv("XIVAUTH_CLIENT_ID"), os.Getenv("XIVAUTH_CLIENT_SECRET"),
 		os.Getenv("XIVAUTH_LOGIN_CALLBACK"),
@@ -100,8 +100,16 @@ func newServer(redisesion *redisservice.RedisSessionService) *loggingWayServer {
 	if err != nil {
 		log.Fatalf("Failed to initialize xivauthservice: %v", err)
 	}
+
 	fmt.Println("Initializing redis related services...")
 	rediserv := redisservice.NewPublisher(os.Getenv("REDIS_ADDR"), "reports_stream")
+	redisesion := redisservice.NewRedisSessionService(os.Getenv("REDIS_ADDR"),
+		"",
+		0,
+		"session",
+		24*time.Hour,
+		xivs,
+	)
 	redistate := redisservice.NewRedisStateStoreService(os.Getenv("REDIS_ADDR"),
 		"",
 		0,
@@ -234,7 +242,13 @@ func (s *loggingWayServer) CreateNewReport(ctx context.Context, request *lg.NewR
 // endpoint should mainly be used as a refresher,TODO:dont forget rate limits
 func (s *loggingWayServer) GetMyCharacters(ctx context.Context, request *lg.GetMyCharactersRequest) (*lg.GetMyCharactersReply, error) {
 	sessiondata := ctx.Value("sessionData").(*redisservice.UserSession)
-	chars, err := s.xivAuthService.GetCharacters(sessiondata.AccessToken.AccessToken)
+	//TODO:move Token management to a middleware,have the AccessToken exposed via ctx instead
+	tksource := s.oauthConfig.TokenSource(ctx, &sessiondata.AccessToken)
+	token, err := tksource.Token()
+	if err != nil {
+		return nil, status.Error(codes.Aborted, "Token expired or revoked")
+	}
+	chars, err := s.xivAuthService.GetCharacters(token.AccessToken)
 	if err != nil {
 		return nil, status.Error(codes.NotFound, "Failed to retrieve characters from XIVAuth")
 	}
@@ -341,20 +355,11 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
-	//the redis session service needs to be created outside the grpc server, so we can add
-	//the auth function as middleware
-	fmt.Println("Initializing Redis session service...")
-	redisesion := redisservice.NewRedisSessionService(os.Getenv("REDIS_ADDR"),
-		"",
-		0,
-		"session",
-		24*time.Hour,
-	)
-	fmt.Println("Done")
+	logway := newServer()
 	grpcServer := grpc.NewServer(grpc.ChainUnaryInterceptor(
-		auth.UnaryServerInterceptor(redisesion.AuthFunc),
+		auth.UnaryServerInterceptor(logway.Sessioner.AuthFunc),
 	),
-		grpc.ChainStreamInterceptor(auth.StreamServerInterceptor(redisesion.AuthFunc)))
-	lg.RegisterLoggingwayServer(grpcServer, newServer(redisesion))
+		grpc.ChainStreamInterceptor(auth.StreamServerInterceptor(logway.Sessioner.AuthFunc)))
+	lg.RegisterLoggingwayServer(grpcServer, logway)
 	grpcServer.Serve(lis)
 }
