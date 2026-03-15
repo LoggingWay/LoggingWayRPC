@@ -2,14 +2,12 @@
 // versions:
 // - protoc-gen-go-grpc v1.6.0
 // - protoc             v6.33.4
-// source: loggingway_rpc.proto
+// source: combat_events.proto
 
-package loggingway_rpc
+package combat_events
 
 import (
 	context "context"
-	combat_events "loggingwayrpc/gen/combat_events"
-
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -21,14 +19,15 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Loggingway_GetXivAuthRedirect_FullMethodName = "/loggingway_rpc.Loggingway/GetXivAuthRedirect"
-	Loggingway_Login_FullMethodName              = "/loggingway_rpc.Loggingway/Login"
-	Loggingway_CreateNewReport_FullMethodName    = "/loggingway_rpc.Loggingway/CreateNewReport"
-	Loggingway_EncounterIngest_FullMethodName    = "/loggingway_rpc.Loggingway/EncounterIngest"
-	Loggingway_GetMyCharacters_FullMethodName    = "/loggingway_rpc.Loggingway/GetMyCharacters"
-	Loggingway_GetMyReports_FullMethodName       = "/loggingway_rpc.Loggingway/GetMyReports"
-	Loggingway_GetEncountersStats_FullMethodName = "/loggingway_rpc.Loggingway/GetEncountersStats"
-	Loggingway_CombatEventIngest_FullMethodName  = "/loggingway_rpc.Loggingway/CombatEventIngest"
+	Loggingway_GetXivAuthRedirect_FullMethodName = "/combat_events.Loggingway/GetXivAuthRedirect"
+	Loggingway_Login_FullMethodName              = "/combat_events.Loggingway/Login"
+	Loggingway_CreateNewReport_FullMethodName    = "/combat_events.Loggingway/CreateNewReport"
+	Loggingway_EncounterIngest_FullMethodName    = "/combat_events.Loggingway/EncounterIngest"
+	Loggingway_GetMyCharacters_FullMethodName    = "/combat_events.Loggingway/GetMyCharacters"
+	Loggingway_GetMyReports_FullMethodName       = "/combat_events.Loggingway/GetMyReports"
+	Loggingway_GetMyEncounters_FullMethodName    = "/combat_events.Loggingway/GetMyEncounters"
+	Loggingway_GetEncountersStats_FullMethodName = "/combat_events.Loggingway/GetEncountersStats"
+	Loggingway_CombatEventIngest_FullMethodName  = "/combat_events.Loggingway/CombatEventIngest"
 )
 
 // LoggingwayClient is the client API for Loggingway service.
@@ -45,8 +44,9 @@ type LoggingwayClient interface {
 	EncounterIngest(ctx context.Context, in *NewEncounterRequest, opts ...grpc.CallOption) (*NewEncounterReply, error)
 	GetMyCharacters(ctx context.Context, in *GetMyCharactersRequest, opts ...grpc.CallOption) (*GetMyCharactersReply, error)
 	GetMyReports(ctx context.Context, in *GetMyReportsRequest, opts ...grpc.CallOption) (*GetMyReportsReply, error)
+	GetMyEncounters(ctx context.Context, in *GetMyEncountersRequest, opts ...grpc.CallOption) (*GetMyEncountersReply, error)
 	GetEncountersStats(ctx context.Context, in *GetEncountersStatsRequest, opts ...grpc.CallOption) (*GetEncountersStatsReply, error)
-	CombatEventIngest(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[combat_events.CombatEvent, CombatEventIngestReturn], error)
+	CombatEventIngest(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[CombatEvent, CombatEventIngestReturn], error)
 }
 
 type loggingwayClient struct {
@@ -117,6 +117,16 @@ func (c *loggingwayClient) GetMyReports(ctx context.Context, in *GetMyReportsReq
 	return out, nil
 }
 
+func (c *loggingwayClient) GetMyEncounters(ctx context.Context, in *GetMyEncountersRequest, opts ...grpc.CallOption) (*GetMyEncountersReply, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetMyEncountersReply)
+	err := c.cc.Invoke(ctx, Loggingway_GetMyEncounters_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *loggingwayClient) GetEncountersStats(ctx context.Context, in *GetEncountersStatsRequest, opts ...grpc.CallOption) (*GetEncountersStatsReply, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetEncountersStatsReply)
@@ -127,18 +137,18 @@ func (c *loggingwayClient) GetEncountersStats(ctx context.Context, in *GetEncoun
 	return out, nil
 }
 
-func (c *loggingwayClient) CombatEventIngest(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[combat_events.CombatEvent, CombatEventIngestReturn], error) {
+func (c *loggingwayClient) CombatEventIngest(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[CombatEvent, CombatEventIngestReturn], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	stream, err := c.cc.NewStream(ctx, &Loggingway_ServiceDesc.Streams[0], Loggingway_CombatEventIngest_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &grpc.GenericClientStream[combat_events.CombatEvent, CombatEventIngestReturn]{ClientStream: stream}
+	x := &grpc.GenericClientStream[CombatEvent, CombatEventIngestReturn]{ClientStream: stream}
 	return x, nil
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type Loggingway_CombatEventIngestClient = grpc.ClientStreamingClient[combat_events.CombatEvent, CombatEventIngestReturn]
+type Loggingway_CombatEventIngestClient = grpc.ClientStreamingClient[CombatEvent, CombatEventIngestReturn]
 
 // LoggingwayServer is the server API for Loggingway service.
 // All implementations must embed UnimplementedLoggingwayServer
@@ -154,8 +164,9 @@ type LoggingwayServer interface {
 	EncounterIngest(context.Context, *NewEncounterRequest) (*NewEncounterReply, error)
 	GetMyCharacters(context.Context, *GetMyCharactersRequest) (*GetMyCharactersReply, error)
 	GetMyReports(context.Context, *GetMyReportsRequest) (*GetMyReportsReply, error)
+	GetMyEncounters(context.Context, *GetMyEncountersRequest) (*GetMyEncountersReply, error)
 	GetEncountersStats(context.Context, *GetEncountersStatsRequest) (*GetEncountersStatsReply, error)
-	CombatEventIngest(grpc.ClientStreamingServer[combat_events.CombatEvent, CombatEventIngestReturn]) error
+	CombatEventIngest(grpc.ClientStreamingServer[CombatEvent, CombatEventIngestReturn]) error
 	mustEmbedUnimplementedLoggingwayServer()
 }
 
@@ -184,10 +195,13 @@ func (UnimplementedLoggingwayServer) GetMyCharacters(context.Context, *GetMyChar
 func (UnimplementedLoggingwayServer) GetMyReports(context.Context, *GetMyReportsRequest) (*GetMyReportsReply, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetMyReports not implemented")
 }
+func (UnimplementedLoggingwayServer) GetMyEncounters(context.Context, *GetMyEncountersRequest) (*GetMyEncountersReply, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetMyEncounters not implemented")
+}
 func (UnimplementedLoggingwayServer) GetEncountersStats(context.Context, *GetEncountersStatsRequest) (*GetEncountersStatsReply, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetEncountersStats not implemented")
 }
-func (UnimplementedLoggingwayServer) CombatEventIngest(grpc.ClientStreamingServer[combat_events.CombatEvent, CombatEventIngestReturn]) error {
+func (UnimplementedLoggingwayServer) CombatEventIngest(grpc.ClientStreamingServer[CombatEvent, CombatEventIngestReturn]) error {
 	return status.Error(codes.Unimplemented, "method CombatEventIngest not implemented")
 }
 func (UnimplementedLoggingwayServer) mustEmbedUnimplementedLoggingwayServer() {}
@@ -319,6 +333,24 @@ func _Loggingway_GetMyReports_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Loggingway_GetMyEncounters_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetMyEncountersRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(LoggingwayServer).GetMyEncounters(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Loggingway_GetMyEncounters_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(LoggingwayServer).GetMyEncounters(ctx, req.(*GetMyEncountersRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Loggingway_GetEncountersStats_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetEncountersStatsRequest)
 	if err := dec(in); err != nil {
@@ -338,17 +370,17 @@ func _Loggingway_GetEncountersStats_Handler(srv interface{}, ctx context.Context
 }
 
 func _Loggingway_CombatEventIngest_Handler(srv interface{}, stream grpc.ServerStream) error {
-	return srv.(LoggingwayServer).CombatEventIngest(&grpc.GenericServerStream[combat_events.CombatEvent, CombatEventIngestReturn]{ServerStream: stream})
+	return srv.(LoggingwayServer).CombatEventIngest(&grpc.GenericServerStream[CombatEvent, CombatEventIngestReturn]{ServerStream: stream})
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type Loggingway_CombatEventIngestServer = grpc.ClientStreamingServer[combat_events.CombatEvent, CombatEventIngestReturn]
+type Loggingway_CombatEventIngestServer = grpc.ClientStreamingServer[CombatEvent, CombatEventIngestReturn]
 
 // Loggingway_ServiceDesc is the grpc.ServiceDesc for Loggingway service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Loggingway_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "loggingway_rpc.Loggingway",
+	ServiceName: "combat_events.Loggingway",
 	HandlerType: (*LoggingwayServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -376,6 +408,10 @@ var Loggingway_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Loggingway_GetMyReports_Handler,
 		},
 		{
+			MethodName: "GetMyEncounters",
+			Handler:    _Loggingway_GetMyEncounters_Handler,
+		},
+		{
 			MethodName: "GetEncountersStats",
 			Handler:    _Loggingway_GetEncountersStats_Handler,
 		},
@@ -387,5 +423,5 @@ var Loggingway_ServiceDesc = grpc.ServiceDesc{
 			ClientStreams: true,
 		},
 	},
-	Metadata: "loggingway_rpc.proto",
+	Metadata: "combat_events.proto",
 }

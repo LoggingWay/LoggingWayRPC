@@ -6,7 +6,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"log"
-	lg "loggingwayrpc/gen/loggingway_rpc"
+	lg "loggingwayrpc/gen"
 	redisservice "loggingwayrpc/redis"
 	"loggingwayrpc/xivauth"
 	"net"
@@ -40,6 +40,14 @@ type Report struct {
 	CreatedBy  uuid.UUID // pointer because it can be NULL
 	ReportName string
 	CreatedAt  time.Time
+}
+
+// for now, no point in exposing payload
+type EncounterNoPayload struct {
+	ID          int64
+	zone_id     int32
+	uploaded_at time.Time
+	uploaded_by int64
 }
 
 type EncounterPlayerStats struct {
@@ -261,34 +269,75 @@ func (s *loggingWayServer) GetMyCharacters(ctx context.Context, request *lg.GetM
 	return &lg.GetMyCharactersReply{Characters: charlist}, nil
 }
 
-func (s *loggingWayServer) GetMyReports(ctx context.Context, request *lg.GetMyReportsRequest) (*lg.GetMyReportsReply, error) {
+func (s *loggingWayServer) GetMyEncounters(ctx context.Context, request *lg.GetMyEncountersRequest) (*lg.GetMyEncountersReply, error) {
 	sessiondata := ctx.Value("sessionData").(*redisservice.UserSession)
 	conn, err := s.connpool.Acquire(ctx)
 	if err != nil {
-		return nil, status.Error(codes.Aborted, "Failed to acquire db connection")
+		fmt.Printf("error:%v", err)
+		return nil, status.Error(codes.Internal, "Failed to get encounters")
 	}
-	query := `
-		SELECT id, created_by, report_name, created_at
-		FROM reports
-		WHERE created_by = $1 LIMIT 20;
-	`
-	var reportlist []*lg.Report
-	reports, err := conn.Query(ctx, query, sessiondata.UserID)
+	var query string
+	if request.ZoneId == 0 {
+		query = `SELECT id,zone_id,uploaded_at,uploaded_by
+	FROM encounters
+	WHERE uploaded_by = $1 LIMIT 20;`
+	} else {
+		query = `SELECT id,zone_id,uploaded_at,uploaded_by
+	FROM encounters
+	WHERE uploaded_by = $1 AND zone_id = $2 LIMIT 20;`
+	}
+	var encounterslist []*lg.Encounter
+	encounters, err := conn.Query(ctx, query, sessiondata.UserID, request.ZoneId)
 	if err != nil {
-		return nil, status.Error(codes.NotFound, "Report query returned an error")
+		return nil, status.Error(codes.NotFound, "Failed to read encounters")
 	}
-	for reports.Next() {
-		var r Report
-		reports.Scan(
-			&r.ID,
-			&r.CreatedBy,
-			&r.ReportName,
-			&r.CreatedAt,
+	for encounters.Next() {
+		var s EncounterNoPayload
+		encounters.Scan(
+			&s.ID,
+			&s.zone_id,
+			&s.uploaded_at,
+			&s.uploaded_by,
 		)
-		reportlist = append(reportlist, &lg.Report{ReportId: r.ID, ReportName: r.ReportName})
+		encounterslist = append(encounterslist, &lg.Encounter{
+			EncounterId: s.ID,
+			ZoneId:      uint32(s.zone_id),
+			UploadedAt:  s.uploaded_at.Unix(),
+		})
 	}
-	return &lg.GetMyReportsReply{Reports: reportlist}, nil
+	return &lg.GetMyEncountersReply{Encounters: encounterslist}, nil
 }
+
+/*
+	func (s *loggingWayServer) GetMyReports(ctx context.Context, request *lg.GetMyReportsRequest) (*lg.GetMyReportsReply, error) {
+		sessiondata := ctx.Value("sessionData").(*redisservice.UserSession)
+		conn, err := s.connpool.Acquire(ctx)
+		if err != nil {
+			return nil, status.Error(codes.Aborted, "Failed to acquire db connection")
+		}
+		query := `
+			SELECT id, created_by, report_name, created_at
+			FROM reports
+			WHERE created_by = $1 LIMIT 20;
+		`
+		var reportlist []*lg.Report
+		reports, err := conn.Query(ctx, query, sessiondata.UserID)
+		if err != nil {
+			return nil, status.Error(codes.NotFound, "Report query returned an error")
+		}
+		for reports.Next() {
+			var r Report
+			reports.Scan(
+				&r.ID,
+				&r.CreatedBy,
+				&r.ReportName,
+				&r.CreatedAt,
+			)
+			reportlist = append(reportlist, &lg.Report{ReportId: r.ID, ReportName: r.ReportName})
+		}
+		return &lg.GetMyReportsReply{Reports: reportlist}, nil
+	}
+*/
 
 func (s *loggingWayServer) GetEncountersStats(ctx context.Context, request *lg.GetEncountersStatsRequest) (*lg.GetEncountersStatsReply, error) {
 	conn, err := s.connpool.Acquire(ctx)

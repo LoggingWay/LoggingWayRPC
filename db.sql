@@ -1,5 +1,6 @@
 CREATE TABLE users (
     id uuid PRIMARY KEY,
+    xivauthid uuid NOT NULL,
     username TEXT DEFAULT NULL,
     verified_characters BOOLEAN NOT NULL,
     banned BOOLEAN NOT NULL DEFAULT FALSE
@@ -23,30 +24,31 @@ CREATE TABLE characters (
     homeworld SMALLINT NOT NULL
 );
 
-
+/*
 CREATE TABLE reports (
     id BIGSERIAL PRIMARY KEY,
     created_by uuid REFERENCES users(id),
     report_name TEXT,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
-
+*/
 
 CREATE TABLE encounters(
     id BIGSERIAL PRIMARY KEY,
-    report_id BIGSERIAL REFERENCES reports(id),
     zone_id INTEGER,
     uploaded_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    uploaded_by uuid REFERENCES users(id),
     payload BYTEA NOT NULL
 );
 
 CREATE TABLE encounter_player_stats (
     id BIGSERIAL PRIMARY KEY,
     encounter_id BIGSERIAL NOT NULL REFERENCES encounters(id) ON DELETE CASCADE,
-
-    player_id BIGINT NOT NULL,
+    uploaded_by uuid REFERENCES users(id),
+    player_id BIGINT NOT NULL,/*ID here is relative to the payload,aka gameobjectid of the player in the report*/
 	player_name TEXT NOT NULL,
     total_damage BIGINT NOT NULL,
+    total_pscore BIGINT NOT NULL,
     total_healing BIGINT NOT NULL,
 
     total_hits BIGINT NOT NULL,

@@ -3,7 +3,7 @@ package redisservice
 import (
 	"context"
 	"log"
-	lg "loggingwayrpc/gen/loggingway_rpc"
+	lg "loggingwayrpc/gen"
 	"time"
 
 	"github.com/redis/go-redis/v9"

@@ -1483,6 +1483,1068 @@ func (x *PlayerEnterCombat) GetDirectHit() uint32 {
 	return 0
 }
 
+// Declared in order, Request > Reply
+type GetXivAuthRedirectRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetXivAuthRedirectRequest) Reset() {
+	*x = GetXivAuthRedirectRequest{}
+	mi := &file_combat_events_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetXivAuthRedirectRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetXivAuthRedirectRequest) ProtoMessage() {}
+
+func (x *GetXivAuthRedirectRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_combat_events_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetXivAuthRedirectRequest.ProtoReflect.Descriptor instead.
+func (*GetXivAuthRedirectRequest) Descriptor() ([]byte, []int) {
+	return file_combat_events_proto_rawDescGZIP(), []int{14}
+}
+
+type GetXivAuthRedirectReply struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Xivauthuri    string                 `protobuf:"bytes,1,opt,name=xivauthuri,proto3" json:"xivauthuri,omitempty"` //state is included in the uri
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetXivAuthRedirectReply) Reset() {
+	*x = GetXivAuthRedirectReply{}
+	mi := &file_combat_events_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetXivAuthRedirectReply) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetXivAuthRedirectReply) ProtoMessage() {}
+
+func (x *GetXivAuthRedirectReply) ProtoReflect() protoreflect.Message {
+	mi := &file_combat_events_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetXivAuthRedirectReply.ProtoReflect.Descriptor instead.
+func (*GetXivAuthRedirectReply) Descriptor() ([]byte, []int) {
+	return file_combat_events_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *GetXivAuthRedirectReply) GetXivauthuri() string {
+	if x != nil {
+		return x.Xivauthuri
+	}
+	return ""
+}
+
+type LoginRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Code          string                 `protobuf:"bytes,1,opt,name=code,proto3" json:"code,omitempty"`
+	State         string                 `protobuf:"bytes,2,opt,name=state,proto3" json:"state,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LoginRequest) Reset() {
+	*x = LoginRequest{}
+	mi := &file_combat_events_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LoginRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LoginRequest) ProtoMessage() {}
+
+func (x *LoginRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_combat_events_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LoginRequest.ProtoReflect.Descriptor instead.
+func (*LoginRequest) Descriptor() ([]byte, []int) {
+	return file_combat_events_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *LoginRequest) GetCode() string {
+	if x != nil {
+		return x.Code
+	}
+	return ""
+}
+
+func (x *LoginRequest) GetState() string {
+	if x != nil {
+		return x.State
+	}
+	return ""
+}
+
+type LoginReply struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	SessionID     string                 `protobuf:"bytes,1,opt,name=sessionID,proto3" json:"sessionID,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LoginReply) Reset() {
+	*x = LoginReply{}
+	mi := &file_combat_events_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LoginReply) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LoginReply) ProtoMessage() {}
+
+func (x *LoginReply) ProtoReflect() protoreflect.Message {
+	mi := &file_combat_events_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LoginReply.ProtoReflect.Descriptor instead.
+func (*LoginReply) Descriptor() ([]byte, []int) {
+	return file_combat_events_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *LoginReply) GetSessionID() string {
+	if x != nil {
+		return x.SessionID
+	}
+	return ""
+}
+
+type NewReportRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Visbility     uint32                 `protobuf:"varint,1,opt,name=visbility,proto3" json:"visbility,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *NewReportRequest) Reset() {
+	*x = NewReportRequest{}
+	mi := &file_combat_events_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *NewReportRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*NewReportRequest) ProtoMessage() {}
+
+func (x *NewReportRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_combat_events_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use NewReportRequest.ProtoReflect.Descriptor instead.
+func (*NewReportRequest) Descriptor() ([]byte, []int) {
+	return file_combat_events_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *NewReportRequest) GetVisbility() uint32 {
+	if x != nil {
+		return x.Visbility
+	}
+	return 0
+}
+
+type NewReportReply struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Reportid      int64                  `protobuf:"varint,1,opt,name=reportid,proto3" json:"reportid,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *NewReportReply) Reset() {
+	*x = NewReportReply{}
+	mi := &file_combat_events_proto_msgTypes[19]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *NewReportReply) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*NewReportReply) ProtoMessage() {}
+
+func (x *NewReportReply) ProtoReflect() protoreflect.Message {
+	mi := &file_combat_events_proto_msgTypes[19]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use NewReportReply.ProtoReflect.Descriptor instead.
+func (*NewReportReply) Descriptor() ([]byte, []int) {
+	return file_combat_events_proto_rawDescGZIP(), []int{19}
+}
+
+func (x *NewReportReply) GetReportid() int64 {
+	if x != nil {
+		return x.Reportid
+	}
+	return 0
+}
+
+type NewEncounterRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ReportId      int64                  `protobuf:"varint,1,opt,name=report_id,json=reportId,proto3" json:"report_id,omitempty"`
+	Events        []*CombatEvent         `protobuf:"bytes,2,rep,name=events,proto3" json:"events,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *NewEncounterRequest) Reset() {
+	*x = NewEncounterRequest{}
+	mi := &file_combat_events_proto_msgTypes[20]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *NewEncounterRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*NewEncounterRequest) ProtoMessage() {}
+
+func (x *NewEncounterRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_combat_events_proto_msgTypes[20]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use NewEncounterRequest.ProtoReflect.Descriptor instead.
+func (*NewEncounterRequest) Descriptor() ([]byte, []int) {
+	return file_combat_events_proto_rawDescGZIP(), []int{20}
+}
+
+func (x *NewEncounterRequest) GetReportId() int64 {
+	if x != nil {
+		return x.ReportId
+	}
+	return 0
+}
+
+func (x *NewEncounterRequest) GetEvents() []*CombatEvent {
+	if x != nil {
+		return x.Events
+	}
+	return nil
+}
+
+type NewEncounterReply struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Code          uint32                 `protobuf:"varint,1,opt,name=code,proto3" json:"code,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *NewEncounterReply) Reset() {
+	*x = NewEncounterReply{}
+	mi := &file_combat_events_proto_msgTypes[21]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *NewEncounterReply) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*NewEncounterReply) ProtoMessage() {}
+
+func (x *NewEncounterReply) ProtoReflect() protoreflect.Message {
+	mi := &file_combat_events_proto_msgTypes[21]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use NewEncounterReply.ProtoReflect.Descriptor instead.
+func (*NewEncounterReply) Descriptor() ([]byte, []int) {
+	return file_combat_events_proto_rawDescGZIP(), []int{21}
+}
+
+func (x *NewEncounterReply) GetCode() uint32 {
+	if x != nil {
+		return x.Code
+	}
+	return 0
+}
+
+type GetMyCharactersRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetMyCharactersRequest) Reset() {
+	*x = GetMyCharactersRequest{}
+	mi := &file_combat_events_proto_msgTypes[22]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetMyCharactersRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetMyCharactersRequest) ProtoMessage() {}
+
+func (x *GetMyCharactersRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_combat_events_proto_msgTypes[22]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetMyCharactersRequest.ProtoReflect.Descriptor instead.
+func (*GetMyCharactersRequest) Descriptor() ([]byte, []int) {
+	return file_combat_events_proto_rawDescGZIP(), []int{22}
+}
+
+type GetMyCharactersReply struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Characters    []*Character           `protobuf:"bytes,1,rep,name=characters,proto3" json:"characters,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetMyCharactersReply) Reset() {
+	*x = GetMyCharactersReply{}
+	mi := &file_combat_events_proto_msgTypes[23]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetMyCharactersReply) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetMyCharactersReply) ProtoMessage() {}
+
+func (x *GetMyCharactersReply) ProtoReflect() protoreflect.Message {
+	mi := &file_combat_events_proto_msgTypes[23]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetMyCharactersReply.ProtoReflect.Descriptor instead.
+func (*GetMyCharactersReply) Descriptor() ([]byte, []int) {
+	return file_combat_events_proto_rawDescGZIP(), []int{23}
+}
+
+func (x *GetMyCharactersReply) GetCharacters() []*Character {
+	if x != nil {
+		return x.Characters
+	}
+	return nil
+}
+
+type GetMyReportsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetMyReportsRequest) Reset() {
+	*x = GetMyReportsRequest{}
+	mi := &file_combat_events_proto_msgTypes[24]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetMyReportsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetMyReportsRequest) ProtoMessage() {}
+
+func (x *GetMyReportsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_combat_events_proto_msgTypes[24]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetMyReportsRequest.ProtoReflect.Descriptor instead.
+func (*GetMyReportsRequest) Descriptor() ([]byte, []int) {
+	return file_combat_events_proto_rawDescGZIP(), []int{24}
+}
+
+type GetMyReportsReply struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Reports       []*Report              `protobuf:"bytes,1,rep,name=reports,proto3" json:"reports,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetMyReportsReply) Reset() {
+	*x = GetMyReportsReply{}
+	mi := &file_combat_events_proto_msgTypes[25]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetMyReportsReply) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetMyReportsReply) ProtoMessage() {}
+
+func (x *GetMyReportsReply) ProtoReflect() protoreflect.Message {
+	mi := &file_combat_events_proto_msgTypes[25]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetMyReportsReply.ProtoReflect.Descriptor instead.
+func (*GetMyReportsReply) Descriptor() ([]byte, []int) {
+	return file_combat_events_proto_rawDescGZIP(), []int{25}
+}
+
+func (x *GetMyReportsReply) GetReports() []*Report {
+	if x != nil {
+		return x.Reports
+	}
+	return nil
+}
+
+type GetMyEncountersRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ZoneId        uint32                 `protobuf:"varint,1,opt,name=zone_id,json=zoneId,proto3" json:"zone_id,omitempty"` //if this is 0, return the last 20 encounters regardless of zone
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetMyEncountersRequest) Reset() {
+	*x = GetMyEncountersRequest{}
+	mi := &file_combat_events_proto_msgTypes[26]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetMyEncountersRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetMyEncountersRequest) ProtoMessage() {}
+
+func (x *GetMyEncountersRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_combat_events_proto_msgTypes[26]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetMyEncountersRequest.ProtoReflect.Descriptor instead.
+func (*GetMyEncountersRequest) Descriptor() ([]byte, []int) {
+	return file_combat_events_proto_rawDescGZIP(), []int{26}
+}
+
+func (x *GetMyEncountersRequest) GetZoneId() uint32 {
+	if x != nil {
+		return x.ZoneId
+	}
+	return 0
+}
+
+type GetMyEncountersReply struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Encounters    []*Encounter           `protobuf:"bytes,1,rep,name=encounters,proto3" json:"encounters,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetMyEncountersReply) Reset() {
+	*x = GetMyEncountersReply{}
+	mi := &file_combat_events_proto_msgTypes[27]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetMyEncountersReply) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetMyEncountersReply) ProtoMessage() {}
+
+func (x *GetMyEncountersReply) ProtoReflect() protoreflect.Message {
+	mi := &file_combat_events_proto_msgTypes[27]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetMyEncountersReply.ProtoReflect.Descriptor instead.
+func (*GetMyEncountersReply) Descriptor() ([]byte, []int) {
+	return file_combat_events_proto_rawDescGZIP(), []int{27}
+}
+
+func (x *GetMyEncountersReply) GetEncounters() []*Encounter {
+	if x != nil {
+		return x.Encounters
+	}
+	return nil
+}
+
+type GetEncountersStatsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	EncounterId   int64                  `protobuf:"varint,1,opt,name=encounter_id,json=encounterId,proto3" json:"encounter_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetEncountersStatsRequest) Reset() {
+	*x = GetEncountersStatsRequest{}
+	mi := &file_combat_events_proto_msgTypes[28]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetEncountersStatsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetEncountersStatsRequest) ProtoMessage() {}
+
+func (x *GetEncountersStatsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_combat_events_proto_msgTypes[28]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetEncountersStatsRequest.ProtoReflect.Descriptor instead.
+func (*GetEncountersStatsRequest) Descriptor() ([]byte, []int) {
+	return file_combat_events_proto_rawDescGZIP(), []int{28}
+}
+
+func (x *GetEncountersStatsRequest) GetEncounterId() int64 {
+	if x != nil {
+		return x.EncounterId
+	}
+	return 0
+}
+
+type GetEncountersStatsReply struct {
+	state         protoimpl.MessageState      `protogen:"open.v1"`
+	Playerstats   []*EncounterPlayerBreakdown `protobuf:"bytes,1,rep,name=playerstats,proto3" json:"playerstats,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetEncountersStatsReply) Reset() {
+	*x = GetEncountersStatsReply{}
+	mi := &file_combat_events_proto_msgTypes[29]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetEncountersStatsReply) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetEncountersStatsReply) ProtoMessage() {}
+
+func (x *GetEncountersStatsReply) ProtoReflect() protoreflect.Message {
+	mi := &file_combat_events_proto_msgTypes[29]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetEncountersStatsReply.ProtoReflect.Descriptor instead.
+func (*GetEncountersStatsReply) Descriptor() ([]byte, []int) {
+	return file_combat_events_proto_rawDescGZIP(), []int{29}
+}
+
+func (x *GetEncountersStatsReply) GetPlayerstats() []*EncounterPlayerBreakdown {
+	if x != nil {
+		return x.Playerstats
+	}
+	return nil
+}
+
+// types
+type Character struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Homeworld     string                 `protobuf:"bytes,2,opt,name=homeworld,proto3" json:"homeworld,omitempty"`
+	Datacenter    string                 `protobuf:"bytes,3,opt,name=datacenter,proto3" json:"datacenter,omitempty"`
+	PersistentKey string                 `protobuf:"bytes,4,opt,name=persistent_key,json=persistentKey,proto3" json:"persistent_key,omitempty"`
+	Visbility     uint32                 `protobuf:"varint,5,opt,name=visbility,proto3" json:"visbility,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Character) Reset() {
+	*x = Character{}
+	mi := &file_combat_events_proto_msgTypes[30]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Character) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Character) ProtoMessage() {}
+
+func (x *Character) ProtoReflect() protoreflect.Message {
+	mi := &file_combat_events_proto_msgTypes[30]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Character.ProtoReflect.Descriptor instead.
+func (*Character) Descriptor() ([]byte, []int) {
+	return file_combat_events_proto_rawDescGZIP(), []int{30}
+}
+
+func (x *Character) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *Character) GetHomeworld() string {
+	if x != nil {
+		return x.Homeworld
+	}
+	return ""
+}
+
+func (x *Character) GetDatacenter() string {
+	if x != nil {
+		return x.Datacenter
+	}
+	return ""
+}
+
+func (x *Character) GetPersistentKey() string {
+	if x != nil {
+		return x.PersistentKey
+	}
+	return ""
+}
+
+func (x *Character) GetVisbility() uint32 {
+	if x != nil {
+		return x.Visbility
+	}
+	return 0
+}
+
+type Report struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ReportId      int64                  `protobuf:"varint,1,opt,name=report_id,json=reportId,proto3" json:"report_id,omitempty"`
+	ReportName    string                 `protobuf:"bytes,2,opt,name=report_name,json=reportName,proto3" json:"report_name,omitempty"`
+	Encounters    []*Encounter           `protobuf:"bytes,3,rep,name=encounters,proto3" json:"encounters,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Report) Reset() {
+	*x = Report{}
+	mi := &file_combat_events_proto_msgTypes[31]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Report) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Report) ProtoMessage() {}
+
+func (x *Report) ProtoReflect() protoreflect.Message {
+	mi := &file_combat_events_proto_msgTypes[31]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Report.ProtoReflect.Descriptor instead.
+func (*Report) Descriptor() ([]byte, []int) {
+	return file_combat_events_proto_rawDescGZIP(), []int{31}
+}
+
+func (x *Report) GetReportId() int64 {
+	if x != nil {
+		return x.ReportId
+	}
+	return 0
+}
+
+func (x *Report) GetReportName() string {
+	if x != nil {
+		return x.ReportName
+	}
+	return ""
+}
+
+func (x *Report) GetEncounters() []*Encounter {
+	if x != nil {
+		return x.Encounters
+	}
+	return nil
+}
+
+type Encounter struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	EncounterId   int64                  `protobuf:"varint,1,opt,name=encounter_id,json=encounterId,proto3" json:"encounter_id,omitempty"`
+	ZoneId        uint32                 `protobuf:"varint,2,opt,name=zone_id,json=zoneId,proto3" json:"zone_id,omitempty"`
+	UploadedAt    int64                  `protobuf:"varint,3,opt,name=uploaded_at,json=uploadedAt,proto3" json:"uploaded_at,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Encounter) Reset() {
+	*x = Encounter{}
+	mi := &file_combat_events_proto_msgTypes[32]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Encounter) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Encounter) ProtoMessage() {}
+
+func (x *Encounter) ProtoReflect() protoreflect.Message {
+	mi := &file_combat_events_proto_msgTypes[32]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Encounter.ProtoReflect.Descriptor instead.
+func (*Encounter) Descriptor() ([]byte, []int) {
+	return file_combat_events_proto_rawDescGZIP(), []int{32}
+}
+
+func (x *Encounter) GetEncounterId() int64 {
+	if x != nil {
+		return x.EncounterId
+	}
+	return 0
+}
+
+func (x *Encounter) GetZoneId() uint32 {
+	if x != nil {
+		return x.ZoneId
+	}
+	return 0
+}
+
+func (x *Encounter) GetUploadedAt() int64 {
+	if x != nil {
+		return x.UploadedAt
+	}
+	return 0
+}
+
+type EncounterPlayerBreakdown struct {
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	Name            string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	TotalDamage     int64                  `protobuf:"varint,2,opt,name=total_damage,json=totalDamage,proto3" json:"total_damage,omitempty"`
+	TotalHealing    int64                  `protobuf:"varint,3,opt,name=total_healing,json=totalHealing,proto3" json:"total_healing,omitempty"`
+	TotalHits       int64                  `protobuf:"varint,4,opt,name=total_hits,json=totalHits,proto3" json:"total_hits,omitempty"`
+	TotalCrits      int64                  `protobuf:"varint,5,opt,name=total_crits,json=totalCrits,proto3" json:"total_crits,omitempty"`
+	TotalDirectHits int64                  `protobuf:"varint,6,opt,name=total_direct_hits,json=totalDirectHits,proto3" json:"total_direct_hits,omitempty"`
+	Duration        float32                `protobuf:"fixed32,7,opt,name=duration,proto3" json:"duration,omitempty"`
+	Dps             float32                `protobuf:"fixed32,8,opt,name=dps,proto3" json:"dps,omitempty"`
+	Hps             float32                `protobuf:"fixed32,9,opt,name=hps,proto3" json:"hps,omitempty"`
+	CritRate        float32                `protobuf:"fixed32,10,opt,name=crit_rate,json=critRate,proto3" json:"crit_rate,omitempty"`
+	DhRate          float32                `protobuf:"fixed32,11,opt,name=dh_rate,json=dhRate,proto3" json:"dh_rate,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *EncounterPlayerBreakdown) Reset() {
+	*x = EncounterPlayerBreakdown{}
+	mi := &file_combat_events_proto_msgTypes[33]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *EncounterPlayerBreakdown) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*EncounterPlayerBreakdown) ProtoMessage() {}
+
+func (x *EncounterPlayerBreakdown) ProtoReflect() protoreflect.Message {
+	mi := &file_combat_events_proto_msgTypes[33]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use EncounterPlayerBreakdown.ProtoReflect.Descriptor instead.
+func (*EncounterPlayerBreakdown) Descriptor() ([]byte, []int) {
+	return file_combat_events_proto_rawDescGZIP(), []int{33}
+}
+
+func (x *EncounterPlayerBreakdown) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *EncounterPlayerBreakdown) GetTotalDamage() int64 {
+	if x != nil {
+		return x.TotalDamage
+	}
+	return 0
+}
+
+func (x *EncounterPlayerBreakdown) GetTotalHealing() int64 {
+	if x != nil {
+		return x.TotalHealing
+	}
+	return 0
+}
+
+func (x *EncounterPlayerBreakdown) GetTotalHits() int64 {
+	if x != nil {
+		return x.TotalHits
+	}
+	return 0
+}
+
+func (x *EncounterPlayerBreakdown) GetTotalCrits() int64 {
+	if x != nil {
+		return x.TotalCrits
+	}
+	return 0
+}
+
+func (x *EncounterPlayerBreakdown) GetTotalDirectHits() int64 {
+	if x != nil {
+		return x.TotalDirectHits
+	}
+	return 0
+}
+
+func (x *EncounterPlayerBreakdown) GetDuration() float32 {
+	if x != nil {
+		return x.Duration
+	}
+	return 0
+}
+
+func (x *EncounterPlayerBreakdown) GetDps() float32 {
+	if x != nil {
+		return x.Dps
+	}
+	return 0
+}
+
+func (x *EncounterPlayerBreakdown) GetHps() float32 {
+	if x != nil {
+		return x.Hps
+	}
+	return 0
+}
+
+func (x *EncounterPlayerBreakdown) GetCritRate() float32 {
+	if x != nil {
+		return x.CritRate
+	}
+	return 0
+}
+
+func (x *EncounterPlayerBreakdown) GetDhRate() float32 {
+	if x != nil {
+		return x.DhRate
+	}
+	return 0
+}
+
+type CombatEventIngestReturn struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Code          uint32                 `protobuf:"varint,1,opt,name=code,proto3" json:"code,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CombatEventIngestReturn) Reset() {
+	*x = CombatEventIngestReturn{}
+	mi := &file_combat_events_proto_msgTypes[34]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CombatEventIngestReturn) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CombatEventIngestReturn) ProtoMessage() {}
+
+func (x *CombatEventIngestReturn) ProtoReflect() protoreflect.Message {
+	mi := &file_combat_events_proto_msgTypes[34]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CombatEventIngestReturn.ProtoReflect.Descriptor instead.
+func (*CombatEventIngestReturn) Descriptor() ([]byte, []int) {
+	return file_combat_events_proto_rawDescGZIP(), []int{34}
+}
+
+func (x *CombatEventIngestReturn) GetCode() uint32 {
+	if x != nil {
+		return x.Code
+	}
+	return 0
+}
+
 var File_combat_events_proto protoreflect.FileDescriptor
 
 const file_combat_events_proto_rawDesc = "" +
@@ -1585,7 +2647,82 @@ const file_combat_events_proto_rawDesc = "" +
 	" \x01(\rR\btenacity\x12$\n" +
 	"\rdetermination\x18\v \x01(\rR\rdetermination\x12 \n" +
 	"\vcriticalHit\x18\f \x01(\rR\vcriticalHit\x12\x1c\n" +
-	"\tdirectHit\x18\r \x01(\rR\tdirectHit*k\n" +
+	"\tdirectHit\x18\r \x01(\rR\tdirectHit\"\x1b\n" +
+	"\x19GetXivAuthRedirectRequest\"9\n" +
+	"\x17GetXivAuthRedirectReply\x12\x1e\n" +
+	"\n" +
+	"xivauthuri\x18\x01 \x01(\tR\n" +
+	"xivauthuri\"8\n" +
+	"\fLoginRequest\x12\x12\n" +
+	"\x04code\x18\x01 \x01(\tR\x04code\x12\x14\n" +
+	"\x05state\x18\x02 \x01(\tR\x05state\"*\n" +
+	"\n" +
+	"LoginReply\x12\x1c\n" +
+	"\tsessionID\x18\x01 \x01(\tR\tsessionID\"0\n" +
+	"\x10NewReportRequest\x12\x1c\n" +
+	"\tvisbility\x18\x01 \x01(\rR\tvisbility\",\n" +
+	"\x0eNewReportReply\x12\x1a\n" +
+	"\breportid\x18\x01 \x01(\x03R\breportid\"f\n" +
+	"\x13NewEncounterRequest\x12\x1b\n" +
+	"\treport_id\x18\x01 \x01(\x03R\breportId\x122\n" +
+	"\x06events\x18\x02 \x03(\v2\x1a.combat_events.CombatEventR\x06events\"'\n" +
+	"\x11NewEncounterReply\x12\x12\n" +
+	"\x04code\x18\x01 \x01(\rR\x04code\"\x18\n" +
+	"\x16GetMyCharactersRequest\"P\n" +
+	"\x14GetMyCharactersReply\x128\n" +
+	"\n" +
+	"characters\x18\x01 \x03(\v2\x18.combat_events.CharacterR\n" +
+	"characters\"\x15\n" +
+	"\x13GetMyReportsRequest\"D\n" +
+	"\x11GetMyReportsReply\x12/\n" +
+	"\areports\x18\x01 \x03(\v2\x15.combat_events.ReportR\areports\"1\n" +
+	"\x16GetMyEncountersRequest\x12\x17\n" +
+	"\azone_id\x18\x01 \x01(\rR\x06zoneId\"P\n" +
+	"\x14GetMyEncountersReply\x128\n" +
+	"\n" +
+	"encounters\x18\x01 \x03(\v2\x18.combat_events.EncounterR\n" +
+	"encounters\">\n" +
+	"\x19GetEncountersStatsRequest\x12!\n" +
+	"\fencounter_id\x18\x01 \x01(\x03R\vencounterId\"d\n" +
+	"\x17GetEncountersStatsReply\x12I\n" +
+	"\vplayerstats\x18\x01 \x03(\v2'.combat_events.EncounterPlayerBreakdownR\vplayerstats\"\xa2\x01\n" +
+	"\tCharacter\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1c\n" +
+	"\thomeworld\x18\x02 \x01(\tR\thomeworld\x12\x1e\n" +
+	"\n" +
+	"datacenter\x18\x03 \x01(\tR\n" +
+	"datacenter\x12%\n" +
+	"\x0epersistent_key\x18\x04 \x01(\tR\rpersistentKey\x12\x1c\n" +
+	"\tvisbility\x18\x05 \x01(\rR\tvisbility\"\x80\x01\n" +
+	"\x06Report\x12\x1b\n" +
+	"\treport_id\x18\x01 \x01(\x03R\breportId\x12\x1f\n" +
+	"\vreport_name\x18\x02 \x01(\tR\n" +
+	"reportName\x128\n" +
+	"\n" +
+	"encounters\x18\x03 \x03(\v2\x18.combat_events.EncounterR\n" +
+	"encounters\"h\n" +
+	"\tEncounter\x12!\n" +
+	"\fencounter_id\x18\x01 \x01(\x03R\vencounterId\x12\x17\n" +
+	"\azone_id\x18\x02 \x01(\rR\x06zoneId\x12\x1f\n" +
+	"\vuploaded_at\x18\x03 \x01(\x03R\n" +
+	"uploadedAt\"\xd8\x02\n" +
+	"\x18EncounterPlayerBreakdown\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12!\n" +
+	"\ftotal_damage\x18\x02 \x01(\x03R\vtotalDamage\x12#\n" +
+	"\rtotal_healing\x18\x03 \x01(\x03R\ftotalHealing\x12\x1d\n" +
+	"\n" +
+	"total_hits\x18\x04 \x01(\x03R\ttotalHits\x12\x1f\n" +
+	"\vtotal_crits\x18\x05 \x01(\x03R\n" +
+	"totalCrits\x12*\n" +
+	"\x11total_direct_hits\x18\x06 \x01(\x03R\x0ftotalDirectHits\x12\x1a\n" +
+	"\bduration\x18\a \x01(\x02R\bduration\x12\x10\n" +
+	"\x03dps\x18\b \x01(\x02R\x03dps\x12\x10\n" +
+	"\x03hps\x18\t \x01(\x02R\x03hps\x12\x1b\n" +
+	"\tcrit_rate\x18\n" +
+	" \x01(\x02R\bcritRate\x12\x17\n" +
+	"\adh_rate\x18\v \x01(\x02R\x06dhRate\"-\n" +
+	"\x17CombatEventIngestReturn\x12\x12\n" +
+	"\x04code\x18\x01 \x01(\rR\x04code*k\n" +
 	"\x0eStatusCategory\x12\x18\n" +
 	"\x14STATUS_CATEGORY_NONE\x10\x00\x12\x1e\n" +
 	"\x1aSTATUS_CATEGORY_BENEFICIAL\x10\x01\x12\x1f\n" +
@@ -1647,7 +2784,18 @@ const file_combat_events_proto_rawDesc = "" +
 	"\bOrnament\x10\x0f*'\n" +
 	"\x10EncounterEndKind\x12\t\n" +
 	"\x05Clear\x10\x00\x12\b\n" +
-	"\x04Wipe\x10\x01B,Z\x11gen/combat_events\xaa\x02\x16LoggingWayPlugin.Protob\x06proto3"
+	"\x04Wipe\x10\x012\xca\x06\n" +
+	"\n" +
+	"Loggingway\x12h\n" +
+	"\x12GetXivAuthRedirect\x12(.combat_events.GetXivAuthRedirectRequest\x1a&.combat_events.GetXivAuthRedirectReply\"\x00\x12A\n" +
+	"\x05Login\x12\x1b.combat_events.LoginRequest\x1a\x19.combat_events.LoginReply\"\x00\x12S\n" +
+	"\x0fCreateNewReport\x12\x1f.combat_events.NewReportRequest\x1a\x1d.combat_events.NewReportReply\"\x00\x12Y\n" +
+	"\x0fEncounterIngest\x12\".combat_events.NewEncounterRequest\x1a .combat_events.NewEncounterReply\"\x00\x12_\n" +
+	"\x0fGetMyCharacters\x12%.combat_events.GetMyCharactersRequest\x1a#.combat_events.GetMyCharactersReply\"\x00\x12V\n" +
+	"\fGetMyReports\x12\".combat_events.GetMyReportsRequest\x1a .combat_events.GetMyReportsReply\"\x00\x12_\n" +
+	"\x0fGetMyEncounters\x12%.combat_events.GetMyEncountersRequest\x1a#.combat_events.GetMyEncountersReply\"\x00\x12h\n" +
+	"\x12GetEncountersStats\x12(.combat_events.GetEncountersStatsRequest\x1a&.combat_events.GetEncountersStatsReply\"\x00\x12[\n" +
+	"\x11CombatEventIngest\x12\x1a.combat_events.CombatEvent\x1a&.combat_events.CombatEventIngestReturn\"\x00(\x01B,Z\x11gen/combat_events\xaa\x02\x16LoggingWayPlugin.Protob\x06proto3"
 
 var (
 	file_combat_events_proto_rawDescOnce sync.Once
@@ -1662,27 +2810,48 @@ func file_combat_events_proto_rawDescGZIP() []byte {
 }
 
 var file_combat_events_proto_enumTypes = make([]protoimpl.EnumInfo, 5)
-var file_combat_events_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
+var file_combat_events_proto_msgTypes = make([]protoimpl.MessageInfo, 35)
 var file_combat_events_proto_goTypes = []any{
-	(StatusCategory)(0),          // 0: combat_events.StatusCategory
-	(DamageType)(0),              // 1: combat_events.DamageType
-	(ActionType)(0),              // 2: combat_events.ActionType
-	(ObjectKind)(0),              // 3: combat_events.ObjectKind
-	(EncounterEndKind)(0),        // 4: combat_events.EncounterEndKind
-	(*CombatEvent)(nil),          // 5: combat_events.CombatEvent
-	(*Entity)(nil),               // 6: combat_events.Entity
-	(*EventSnapshot)(nil),        // 7: combat_events.EventSnapshot
-	(*StatusEffectSnapshot)(nil), // 8: combat_events.StatusEffectSnapshot
-	(*StatusEffectData)(nil),     // 9: combat_events.StatusEffectData
-	(*HoTData)(nil),              // 10: combat_events.HoTData
-	(*DoTData)(nil),              // 11: combat_events.DoTData
-	(*DamageTakenData)(nil),      // 12: combat_events.DamageTakenData
-	(*HealedData)(nil),           // 13: combat_events.HealedData
-	(*DeathData)(nil),            // 14: combat_events.DeathData
-	(*EncounterStartData)(nil),   // 15: combat_events.EncounterStartData
-	(*EncounterEndData)(nil),     // 16: combat_events.EncounterEndData
-	(*ZoneChangeData)(nil),       // 17: combat_events.ZoneChangeData
-	(*PlayerEnterCombat)(nil),    // 18: combat_events.PlayerEnterCombat
+	(StatusCategory)(0),               // 0: combat_events.StatusCategory
+	(DamageType)(0),                   // 1: combat_events.DamageType
+	(ActionType)(0),                   // 2: combat_events.ActionType
+	(ObjectKind)(0),                   // 3: combat_events.ObjectKind
+	(EncounterEndKind)(0),             // 4: combat_events.EncounterEndKind
+	(*CombatEvent)(nil),               // 5: combat_events.CombatEvent
+	(*Entity)(nil),                    // 6: combat_events.Entity
+	(*EventSnapshot)(nil),             // 7: combat_events.EventSnapshot
+	(*StatusEffectSnapshot)(nil),      // 8: combat_events.StatusEffectSnapshot
+	(*StatusEffectData)(nil),          // 9: combat_events.StatusEffectData
+	(*HoTData)(nil),                   // 10: combat_events.HoTData
+	(*DoTData)(nil),                   // 11: combat_events.DoTData
+	(*DamageTakenData)(nil),           // 12: combat_events.DamageTakenData
+	(*HealedData)(nil),                // 13: combat_events.HealedData
+	(*DeathData)(nil),                 // 14: combat_events.DeathData
+	(*EncounterStartData)(nil),        // 15: combat_events.EncounterStartData
+	(*EncounterEndData)(nil),          // 16: combat_events.EncounterEndData
+	(*ZoneChangeData)(nil),            // 17: combat_events.ZoneChangeData
+	(*PlayerEnterCombat)(nil),         // 18: combat_events.PlayerEnterCombat
+	(*GetXivAuthRedirectRequest)(nil), // 19: combat_events.GetXivAuthRedirectRequest
+	(*GetXivAuthRedirectReply)(nil),   // 20: combat_events.GetXivAuthRedirectReply
+	(*LoginRequest)(nil),              // 21: combat_events.LoginRequest
+	(*LoginReply)(nil),                // 22: combat_events.LoginReply
+	(*NewReportRequest)(nil),          // 23: combat_events.NewReportRequest
+	(*NewReportReply)(nil),            // 24: combat_events.NewReportReply
+	(*NewEncounterRequest)(nil),       // 25: combat_events.NewEncounterRequest
+	(*NewEncounterReply)(nil),         // 26: combat_events.NewEncounterReply
+	(*GetMyCharactersRequest)(nil),    // 27: combat_events.GetMyCharactersRequest
+	(*GetMyCharactersReply)(nil),      // 28: combat_events.GetMyCharactersReply
+	(*GetMyReportsRequest)(nil),       // 29: combat_events.GetMyReportsRequest
+	(*GetMyReportsReply)(nil),         // 30: combat_events.GetMyReportsReply
+	(*GetMyEncountersRequest)(nil),    // 31: combat_events.GetMyEncountersRequest
+	(*GetMyEncountersReply)(nil),      // 32: combat_events.GetMyEncountersReply
+	(*GetEncountersStatsRequest)(nil), // 33: combat_events.GetEncountersStatsRequest
+	(*GetEncountersStatsReply)(nil),   // 34: combat_events.GetEncountersStatsReply
+	(*Character)(nil),                 // 35: combat_events.Character
+	(*Report)(nil),                    // 36: combat_events.Report
+	(*Encounter)(nil),                 // 37: combat_events.Encounter
+	(*EncounterPlayerBreakdown)(nil),  // 38: combat_events.EncounterPlayerBreakdown
+	(*CombatEventIngestReturn)(nil),   // 39: combat_events.CombatEventIngestReturn
 }
 var file_combat_events_proto_depIdxs = []int32{
 	6,  // 0: combat_events.CombatEvent.source:type_name -> combat_events.Entity
@@ -1705,11 +2874,35 @@ var file_combat_events_proto_depIdxs = []int32{
 	1,  // 17: combat_events.DamageTakenData.damage_type:type_name -> combat_events.DamageType
 	2,  // 18: combat_events.DamageTakenData.display_type:type_name -> combat_events.ActionType
 	4,  // 19: combat_events.EncounterEndData.reason:type_name -> combat_events.EncounterEndKind
-	20, // [20:20] is the sub-list for method output_type
-	20, // [20:20] is the sub-list for method input_type
-	20, // [20:20] is the sub-list for extension type_name
-	20, // [20:20] is the sub-list for extension extendee
-	0,  // [0:20] is the sub-list for field type_name
+	5,  // 20: combat_events.NewEncounterRequest.events:type_name -> combat_events.CombatEvent
+	35, // 21: combat_events.GetMyCharactersReply.characters:type_name -> combat_events.Character
+	36, // 22: combat_events.GetMyReportsReply.reports:type_name -> combat_events.Report
+	37, // 23: combat_events.GetMyEncountersReply.encounters:type_name -> combat_events.Encounter
+	38, // 24: combat_events.GetEncountersStatsReply.playerstats:type_name -> combat_events.EncounterPlayerBreakdown
+	37, // 25: combat_events.Report.encounters:type_name -> combat_events.Encounter
+	19, // 26: combat_events.Loggingway.GetXivAuthRedirect:input_type -> combat_events.GetXivAuthRedirectRequest
+	21, // 27: combat_events.Loggingway.Login:input_type -> combat_events.LoginRequest
+	23, // 28: combat_events.Loggingway.CreateNewReport:input_type -> combat_events.NewReportRequest
+	25, // 29: combat_events.Loggingway.EncounterIngest:input_type -> combat_events.NewEncounterRequest
+	27, // 30: combat_events.Loggingway.GetMyCharacters:input_type -> combat_events.GetMyCharactersRequest
+	29, // 31: combat_events.Loggingway.GetMyReports:input_type -> combat_events.GetMyReportsRequest
+	31, // 32: combat_events.Loggingway.GetMyEncounters:input_type -> combat_events.GetMyEncountersRequest
+	33, // 33: combat_events.Loggingway.GetEncountersStats:input_type -> combat_events.GetEncountersStatsRequest
+	5,  // 34: combat_events.Loggingway.CombatEventIngest:input_type -> combat_events.CombatEvent
+	20, // 35: combat_events.Loggingway.GetXivAuthRedirect:output_type -> combat_events.GetXivAuthRedirectReply
+	22, // 36: combat_events.Loggingway.Login:output_type -> combat_events.LoginReply
+	24, // 37: combat_events.Loggingway.CreateNewReport:output_type -> combat_events.NewReportReply
+	26, // 38: combat_events.Loggingway.EncounterIngest:output_type -> combat_events.NewEncounterReply
+	28, // 39: combat_events.Loggingway.GetMyCharacters:output_type -> combat_events.GetMyCharactersReply
+	30, // 40: combat_events.Loggingway.GetMyReports:output_type -> combat_events.GetMyReportsReply
+	32, // 41: combat_events.Loggingway.GetMyEncounters:output_type -> combat_events.GetMyEncountersReply
+	34, // 42: combat_events.Loggingway.GetEncountersStats:output_type -> combat_events.GetEncountersStatsReply
+	39, // 43: combat_events.Loggingway.CombatEventIngest:output_type -> combat_events.CombatEventIngestReturn
+	35, // [35:44] is the sub-list for method output_type
+	26, // [26:35] is the sub-list for method input_type
+	26, // [26:26] is the sub-list for extension type_name
+	26, // [26:26] is the sub-list for extension extendee
+	0,  // [0:26] is the sub-list for field type_name
 }
 
 func init() { file_combat_events_proto_init() }
@@ -1735,9 +2928,9 @@ func file_combat_events_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_combat_events_proto_rawDesc), len(file_combat_events_proto_rawDesc)),
 			NumEnums:      5,
-			NumMessages:   14,
+			NumMessages:   35,
 			NumExtensions: 0,
-			NumServices:   0,
+			NumServices:   1,
 		},
 		GoTypes:           file_combat_events_proto_goTypes,
 		DependencyIndexes: file_combat_events_proto_depIdxs,
