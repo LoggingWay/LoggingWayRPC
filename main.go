@@ -42,6 +42,26 @@ type Report struct {
 	CreatedAt  time.Time
 }
 
+type EncounterPlayerStats struct {
+	ID              int64
+	EncounterID     int64
+	PlayerID        int64
+	PlayerName      string
+	TotalDamage     int64
+	TotalHealing    int64
+	TotalHits       int64
+	TotalCrits      int64
+	TotalDirectHits int64
+	FirstTimestamp  int64
+	LastTimestamp   int64
+	DurationSeconds float64
+	DPS             float64
+	HPS             float64
+	CritRate        float64
+	DirectHitRate   float64
+	CreatedAt       time.Time
+}
+
 /*
 TODO: either fully remove pgx, or create a service for it idk, I'm not thrilled about this server having db access,but for now I
 have to
@@ -211,6 +231,103 @@ func (s *loggingWayServer) CreateNewReport(ctx context.Context, request *lg.NewR
 	return &lg.NewReportReply{Reportid: reportID}, nil
 }
 
+// endpoint should mainly be used as a refresher,TODO:dont forget rate limits
+func (s *loggingWayServer) GetMyCharacters(ctx context.Context, request *lg.GetMyCharactersRequest) (*lg.GetMyCharactersReply, error) {
+	sessiondata := ctx.Value("sessionData").(*redisservice.UserSession)
+	chars, err := s.xivAuthService.GetCharacters(sessiondata.AccessToken.AccessToken)
+	if err != nil {
+		return nil, status.Error(codes.NotFound, "Failed to retrieve characters from XIVAuth")
+	}
+	var charlist []*lg.Character
+	for _, char := range chars {
+		//For now I am hiding persistent key until I know how I will actually use it
+		//Visibility 0 because while working on this project I think I am just gonna remove it at this point
+		charlist = append(charlist, &lg.Character{Name: char.Name, Homeworld: char.HomeWorld, Datacenter: char.DataCenter, PersistentKey: "null", Visbility: 0})
+	}
+	return &lg.GetMyCharactersReply{Characters: charlist}, nil
+}
+
+func (s *loggingWayServer) GetMyReports(ctx context.Context, request *lg.GetMyReportsRequest) (*lg.GetMyReportsReply, error) {
+	sessiondata := ctx.Value("sessionData").(*redisservice.UserSession)
+	conn, err := s.connpool.Acquire(ctx)
+	if err != nil {
+		return nil, status.Error(codes.Aborted, "Failed to acquire db connection")
+	}
+	query := `
+		SELECT id, created_by, report_name, created_at
+		FROM reports
+		WHERE created_by = $1 LIMIT 20;
+	`
+	var reportlist []*lg.Report
+	reports, err := conn.Query(ctx, query, sessiondata.UserID)
+	if err != nil {
+		return nil, status.Error(codes.NotFound, "Report query returned an error")
+	}
+	for reports.Next() {
+		var r Report
+		reports.Scan(
+			&r.ID,
+			&r.CreatedBy,
+			&r.ReportName,
+			&r.CreatedAt,
+		)
+		reportlist = append(reportlist, &lg.Report{ReportId: r.ID, ReportName: r.ReportName})
+	}
+	return &lg.GetMyReportsReply{Reports: reportlist}, nil
+}
+
+func (s *loggingWayServer) GetEncountersStats(ctx context.Context, request *lg.GetEncountersStatsRequest) (*lg.GetEncountersStatsReply, error) {
+	conn, err := s.connpool.Acquire(ctx)
+	if err != nil {
+		return nil, status.Error(codes.Aborted, "Failed to acquire db connection")
+	}
+	query := `
+	SELECT * 
+	FROM encounter_player_stats
+	WHERE encounter_id = $1`
+	var encounterslist []*lg.EncounterPlayerBreakdown
+	encounters, err := conn.Query(ctx, query, request.EncounterId)
+	if err != nil {
+		return nil, status.Error(codes.Internal, "Failed to scan encounter db entry")
+	}
+	for encounters.Next() {
+		var s EncounterPlayerStats
+		encounters.Scan(
+			&s.ID,
+			&s.EncounterID,
+			&s.PlayerID,
+			&s.PlayerName,
+			&s.TotalDamage,
+			&s.TotalHealing,
+			&s.TotalHits,
+			&s.TotalCrits,
+			&s.TotalDirectHits,
+			&s.FirstTimestamp,
+			&s.LastTimestamp,
+			&s.DurationSeconds,
+			&s.DPS,
+			&s.HPS,
+			&s.CritRate,
+			&s.DirectHitRate,
+			&s.CreatedAt,
+		)
+		encounterslist = append(encounterslist, &lg.EncounterPlayerBreakdown{Name: s.PlayerName,
+			TotalDamage:     s.TotalDamage,
+			TotalHealing:    s.TotalHealing,
+			TotalHits:       s.TotalHits,
+			TotalCrits:      s.TotalCrits,
+			TotalDirectHits: s.TotalDirectHits,
+			Duration:        float32(s.DurationSeconds),
+			Dps:             float32(s.DPS),
+			Hps:             float32(s.HPS),
+			CritRate:        float32(s.CritRate),
+			DhRate:          float32(s.DirectHitRate),
+		})
+	}
+	//TODO: check that the requesting user is also the uploader,might be worth restoring uploader field
+	return &lg.GetEncountersStatsReply{Playerstats: encounterslist}, nil
+
+}
 func generateState() (string, error) {
 	b := make([]byte, 32)
 	if _, err := rand.Read(b); err != nil {

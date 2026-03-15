@@ -113,5 +113,7 @@ func (s *RedisSessionService) AuthFunc(ctx context.Context) (context.Context, er
 	if err != nil {
 		return nil, status.Error(codes.Unauthenticated, "invalid token: %v")
 	}
+
+	//TODO, check if the access token is still valid, if not use refresh token to get another, and if both are expired, kill this session and returns an error
 	return context.WithValue(ctx, "sessionData", sessionData), nil
 }
