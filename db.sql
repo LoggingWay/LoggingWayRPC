@@ -1,5 +1,5 @@
 CREATE TABLE users (
-    id uuid PRIMARY KEY DEFAULT uuid_generate_v4() ,
+    id uuid PRIMARY KEY DEFAULT gen_random_uuid() ,
     xivauthid uuid NOT NULL,
     username TEXT DEFAULT NULL,
     verified_characters BOOLEAN NOT NULL,
@@ -7,20 +7,20 @@ CREATE TABLE users (
 );
 
 CREATE TABLE characters_claim (
-    id uuid PRIMARY KEY DEFAULT uuid_generate_v4() ,
+    id uuid PRIMARY KEY DEFAULT gen_random_uuid() ,
     xivauthkey TEXT NOT NULL,/* XIVAuth persistent key*/
     claim_by uuid REFERENCES users(id),
     lodestone_id INTEGER NOT NULL,
     avatar_url TEXT,
     portrait_url TEXT,
-    claim_registered TIMESTAMPTZ NOT NULL DEFAULT now()/*When the user registered on loggingway*/
+    claim_registered TIMESTAMPTZ NOT NULL DEFAULT now(),/*When the user registered on loggingway*/
     UNIQUE(xivauthkey)
 );
 
 
 CREATE TABLE characters (
     id BIGINT PRIMARY KEY,/*ContentID of PC*/
-    xivauthkey TEXT DEFAULT NULL REFERENCES characters_claim(id),
+    xivauthkey TEXT DEFAULT NULL REFERENCES characters_claim(xivauthkey),
     charname TEXT NOT NULL,
     datacenter SMALLINT NOT NULL,
     homeworld SMALLINT NOT NULL
