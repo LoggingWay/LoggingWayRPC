@@ -6,6 +6,7 @@ import (
 	lg "loggingwayrpc/gen"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
 	"google.golang.org/protobuf/proto"
 )
@@ -29,7 +30,7 @@ func NewPublisher(redisAddr string, streamName string) *Publisher {
 	}
 }
 
-func (p *Publisher) PublishEncounter(ctx context.Context, reportID int64, encounterMsg *lg.NewEncounterRequest) error {
+func (p *Publisher) PublishEncounter(ctx context.Context, userID uuid.UUID, encounterMsg *lg.NewEncounterRequest) error {
 	bytes, err := proto.Marshal(encounterMsg)
 	now := time.Now().UTC().Unix()
 	if err != nil {
@@ -37,7 +38,7 @@ func (p *Publisher) PublishEncounter(ctx context.Context, reportID int64, encoun
 	}
 	values := map[string]interface{}{
 		"payload":   bytes,
-		"report_id": reportID,
+		"userID":    userID,
 		"timestamp": now,
 	}
 	p.client.XAdd(ctx, &redis.XAddArgs{

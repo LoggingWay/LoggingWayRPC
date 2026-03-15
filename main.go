@@ -74,8 +74,7 @@ type EncounterPlayerStats struct {
 }
 
 /*
-TODO: either fully remove pgx, or create a service for it idk, I'm not thrilled about this server having db access,but for now I
-have to
+TODO: create a pgx db service
 */
 
 func pgxconfidk() *pgxpool.Config {
@@ -221,7 +220,6 @@ func (s *loggingWayServer) Login(ctx context.Context, request *lg.LoginRequest) 
 	}
 	query_char := `INSERT INTO characters_claim (xivauthkey,claim_by,lodestone_id,avatar_url,portrait_url,charname,datacenter,homeworld)
 	VALUES ($1,$2,$3,$4,$5,$6,$7,$8) ON CONFLICT (xivauthkey,charname,datacenter,homeworld) DO NOTHING;`
-	fmt.Println(sessionData.Characters)
 	for _, char := range sessionData.Characters {
 		_, err := tx.Exec(ctx, query_char, char.PersistentKey, myuserID, char.LodestoneID, char.AvatarURL, char.PortraitURL, char.Name, char.DataCenter, char.HomeWorld)
 		if err != nil {
@@ -233,59 +231,6 @@ func (s *loggingWayServer) Login(ctx context.Context, request *lg.LoginRequest) 
 	tx.Commit(ctx)
 	return &lg.LoginReply{SessionID: sessionID}, nil
 }
-
-func (s *loggingWayServer) EncounterIngest(ctx context.Context, request *lg.NewEncounterRequest) (*lg.NewEncounterReply, error) {
-	conn, err := s.connpool.Acquire(ctx)
-	if err != nil {
-		return nil, status.Error(codes.Aborted, "Failed to acquire db connection")
-	}
-	query := `
-		SELECT id, created_by, report_name, created_at
-		FROM reports
-		WHERE id = $1;
-	`
-	var r Report
-	err = conn.QueryRow(ctx, query, request.ReportId).Scan(
-		&r.ID,
-		&r.CreatedBy,
-		&r.ReportName,
-		&r.CreatedAt,
-	)
-	if err != nil {
-		return nil, status.Error(codes.Canceled, "report not found")
-	}
-	sessiondata := ctx.Value("sessionData")
-	userid := uuid.MustParse(sessiondata.(*redisservice.UserSession).UserID)
-	if r.CreatedBy != userid {
-		return nil, status.Error(codes.PermissionDenied, "User does not own this report")
-	}
-	if err := s.Publisher.PublishEncounter(ctx, request.ReportId, request); err != nil {
-		return nil, status.Error(codes.Canceled, "Error submiting report")
-	}
-	conn.Release()
-	return &lg.NewEncounterReply{Code: 0}, nil
-}
-
-/*func (s *loggingWayServer) CreateNewReport(ctx context.Context, request *lg.NewReportRequest) (*lg.NewReportReply, error) {
-	conn, err := s.connpool.Acquire(ctx)
-	if err != nil {
-		fmt.Printf("error:%v", err)
-		return nil, status.Error(codes.Internal, "Failed to create report")
-	}
-	query := `INSERT INTO reports (created_by, report_name)
-		VALUES ($1, $2)
-		RETURNING id;
-	`
-	sessiondata := ctx.Value("sessionData")
-	var reportID int64
-	err = conn.QueryRow(ctx, query, sessiondata.(*redisservice.UserSession).UserID, "test").Scan(&reportID)
-	if err != nil {
-		fmt.Printf("error:%v", err)
-		return nil, status.Error(codes.AlreadyExists, "Reports already exist or could not be created")
-	}
-	conn.Release()
-	return &lg.NewReportReply{Reportid: reportID}, nil
-}*/
 
 // endpoint should mainly be used as a refresher,TODO:dont forget rate limits
 func (s *loggingWayServer) GetMyCharacters(ctx context.Context, request *lg.GetMyCharactersRequest) (*lg.GetMyCharactersReply, error) {
@@ -347,38 +292,14 @@ func (s *loggingWayServer) GetMyEncounters(ctx context.Context, request *lg.GetM
 	}
 	return &lg.GetMyEncountersReply{Encounters: encounterslist}, nil
 }
-
-/*
-	func (s *loggingWayServer) GetMyReports(ctx context.Context, request *lg.GetMyReportsRequest) (*lg.GetMyReportsReply, error) {
-		sessiondata := ctx.Value("sessionData").(*redisservice.UserSession)
-		conn, err := s.connpool.Acquire(ctx)
-		if err != nil {
-			return nil, status.Error(codes.Aborted, "Failed to acquire db connection")
-		}
-		query := `
-			SELECT id, created_by, report_name, created_at
-			FROM reports
-			WHERE created_by = $1 LIMIT 20;
-		`
-		var reportlist []*lg.Report
-		reports, err := conn.Query(ctx, query, sessiondata.UserID)
-		if err != nil {
-			return nil, status.Error(codes.NotFound, "Report query returned an error")
-		}
-		for reports.Next() {
-			var r Report
-			reports.Scan(
-				&r.ID,
-				&r.CreatedBy,
-				&r.ReportName,
-				&r.CreatedAt,
-			)
-			reportlist = append(reportlist, &lg.Report{ReportId: r.ID, ReportName: r.ReportName})
-		}
-		return &lg.GetMyReportsReply{Reports: reportlist}, nil
+func (s *loggingWayServer) EncounterIngest(ctx context.Context, request *lg.NewEncounterRequest) (*lg.NewEncounterReply, error) {
+	sessiondata := ctx.Value("sessionData")
+	userid := uuid.MustParse(sessiondata.(*redisservice.UserSession).UserID)
+	if err := s.Publisher.PublishEncounter(ctx, userid, request); err != nil {
+		return nil, status.Error(codes.Canceled, "Error submiting report")
 	}
-*/
-
+	return &lg.NewEncounterReply{Code: 0}, nil
+}
 func (s *loggingWayServer) GetEncountersStats(ctx context.Context, request *lg.GetEncountersStatsRequest) (*lg.GetEncountersStatsReply, error) {
 	conn, err := s.connpool.Acquire(ctx)
 	if err != nil {

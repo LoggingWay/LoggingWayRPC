@@ -1,0 +1,87 @@
+//Disgarded code that might be useful one day(or not)
+
+/*
+	func (s *loggingWayServer) GetMyReports(ctx context.Context, request *lg.GetMyReportsRequest) (*lg.GetMyReportsReply, error) {
+		sessiondata := ctx.Value("sessionData").(*redisservice.UserSession)
+		conn, err := s.connpool.Acquire(ctx)
+		if err != nil {
+			return nil, status.Error(codes.Aborted, "Failed to acquire db connection")
+		}
+		query := `
+			SELECT id, created_by, report_name, created_at
+			FROM reports
+			WHERE created_by = $1 LIMIT 20;
+		`
+		var reportlist []*lg.Report
+		reports, err := conn.Query(ctx, query, sessiondata.UserID)
+		if err != nil {
+			return nil, status.Error(codes.NotFound, "Report query returned an error")
+		}
+		for reports.Next() {
+			var r Report
+			reports.Scan(
+				&r.ID,
+				&r.CreatedBy,
+				&r.ReportName,
+				&r.CreatedAt,
+			)
+			reportlist = append(reportlist, &lg.Report{ReportId: r.ID, ReportName: r.ReportName})
+		}
+		return &lg.GetMyReportsReply{Reports: reportlist}, nil
+	}
+*/
+
+/*
+
+func (s *loggingWayServer) EncounterIngest(ctx context.Context, request *lg.NewEncounterRequest) (*lg.NewEncounterReply, error) {
+	conn, err := s.connpool.Acquire(ctx)
+	if err != nil {
+		return nil, status.Error(codes.Aborted, "Failed to acquire db connection")
+	}
+	query := `
+		SELECT id, created_by, report_name, created_at
+		FROM reports
+		WHERE id = $1;
+	`
+	var r Report
+	err = conn.QueryRow(ctx, query, request.ReportId).Scan(
+		&r.ID,
+		&r.CreatedBy,
+		&r.ReportName,
+		&r.CreatedAt,
+	)
+	if err != nil {
+		return nil, status.Error(codes.Canceled, "report not found")
+	}
+	sessiondata := ctx.Value("sessionData")
+	userid := uuid.MustParse(sessiondata.(*redisservice.UserSession).UserID)
+	if r.CreatedBy != userid {
+		return nil, status.Error(codes.PermissionDenied, "User does not own this report")
+	}
+	if err := s.Publisher.PublishEncounter(ctx, request.ReportId, request); err != nil {
+		return nil, status.Error(codes.Canceled, "Error submiting report")
+	}
+	conn.Release()
+	return &lg.NewEncounterReply{Code: 0}, nil
+}
+*/
+/*func (s *loggingWayServer) CreateNewReport(ctx context.Context, request *lg.NewReportRequest) (*lg.NewReportReply, error) {
+	conn, err := s.connpool.Acquire(ctx)
+	if err != nil {
+		fmt.Printf("error:%v", err)
+		return nil, status.Error(codes.Internal, "Failed to create report")
+	}
+	query := `INSERT INTO reports (created_by, report_name)
+		VALUES ($1, $2)
+		RETURNING id;
+	`
+	sessiondata := ctx.Value("sessionData")
+	var reportID int64
+	err = conn.QueryRow(ctx, query, sessiondata.(*redisservice.UserSession).UserID, "test").Scan(&reportID)
+	if err != nil {
+		fmt.Printf("error:%v", err)
+		return nil, status.Error(codes.AlreadyExists, "Reports already exist or could not be created")
+	}
+	conn.Release()
+	return &lg.NewReportReply{Reportid: reportID}, nil
+}*/
