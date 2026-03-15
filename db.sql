@@ -3,21 +3,25 @@ CREATE TABLE users (
     xivauthid uuid NOT NULL,
     username TEXT DEFAULT NULL,
     verified_characters BOOLEAN NOT NULL,
-    banned BOOLEAN NOT NULL DEFAULT FALSE
+    banned BOOLEAN NOT NULL DEFAULT FALSE,
+    UNIQUE(xivauthid)
 );
 
 CREATE TABLE characters_claim (
     id uuid PRIMARY KEY DEFAULT gen_random_uuid() ,
     xivauthkey TEXT NOT NULL,/* XIVAuth persistent key*/
     claim_by uuid REFERENCES users(id),
+    charname TEXT NOT NULL,
+    datacenter TEXT NOT NULL,
+    homeworld TEXT NOT NULL,
     lodestone_id INTEGER NOT NULL,
     avatar_url TEXT,
     portrait_url TEXT,
     claim_registered TIMESTAMPTZ NOT NULL DEFAULT now(),/*When the user registered on loggingway*/
-    UNIQUE(xivauthkey)
+    UNIQUE(xivauthkey,charname,datacenter,homeworld)
 );
 
-
+/*
 CREATE TABLE characters (
     id BIGINT PRIMARY KEY,/*ContentID of PC*/
     xivauthkey TEXT DEFAULT NULL REFERENCES characters_claim(xivauthkey),
@@ -25,7 +29,7 @@ CREATE TABLE characters (
     datacenter SMALLINT NOT NULL,
     homeworld SMALLINT NOT NULL
 );
-
+*/
 /*
 CREATE TABLE reports (
     id BIGSERIAL PRIMARY KEY,
@@ -47,6 +51,7 @@ CREATE TABLE encounter_player_stats (
     id BIGSERIAL PRIMARY KEY,
     encounter_id BIGSERIAL NOT NULL REFERENCES encounters(id) ON DELETE CASCADE,
     uploaded_by uuid REFERENCES users(id),
+    character uuid REFERENCES characters_claim(id),
     player_id BIGINT NOT NULL,/*ID here is relative to the payload,aka gameobjectid of the player in the report*/
 	player_name TEXT NOT NULL,
     total_damage BIGINT NOT NULL,
@@ -70,7 +75,7 @@ CREATE TABLE encounter_player_stats (
 
     UNIQUE(encounter_id, player_id)
 );
-
+/*
 CREATE TABLE encounter_player_action_stats (
     id BIGSERIAL PRIMARY KEY,
     encounter_id BIGSERIAL NOT NULL REFERENCES encounters(id) ON DELETE CASCADE,
@@ -90,3 +95,4 @@ CREATE TABLE encounter_player_action_stats (
 
     UNIQUE(encounter_id, player_id, action_id)
 );
+*/

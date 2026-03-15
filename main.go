@@ -54,6 +54,8 @@ type EncounterNoPayload struct {
 type EncounterPlayerStats struct {
 	ID              int64
 	EncounterID     int64
+	uploaded_by     uuid.UUID
+	character       uuid.UUID
 	PlayerID        int64
 	PlayerName      string
 	TotalDamage     int64
@@ -205,23 +207,30 @@ func (s *loggingWayServer) Login(ctx context.Context, request *lg.LoginRequest) 
 		return nil, status.Error(codes.Aborted, "Failed to create transaction")
 	}
 	defer tx.Rollback(ctx) //auto-fails if tx is commited before this fct returns
-	query := `INSERT INTO users (xivauthid,username,verified_characters)
-		VALUES ($1,$2,$3)
-		ON CONFLICT (xivauthid) DO NOTHING
-		RETURNING id;
-	`
-	var myuserID int64
+	query := `INSERT INTO users (xivauthid, username, verified_characters)
+    VALUES ($1, $2, $3)
+    ON CONFLICT (xivauthid) DO UPDATE SET xivauthid = EXCLUDED.xivauthid
+    RETURNING id;`
+	//this query is a hack,the update clause will do nothing but if you do DO NOTHING and there is conflict, it will return 0000-0000-0etc.. which
+	//mean you'd have to do another query to check the user... this allows to just do 1 and have both
+	var myuserID uuid.UUID
 	err = tx.QueryRow(ctx, query, sessionData.UserID, "None", true).Scan(&myuserID)
 	if err != nil { //if conflict,no row returned so we can skip the character insert
-		return &lg.LoginReply{SessionID: sessionID}, nil
+		//fmt.Println(err)
+		//return &lg.LoginReply{SessionID: sessionID}, nil
 	}
-	query_char := `INSERT INTO characters_claim (xivauthkey,claim_by,lodestone_id,avatar_url,portrait_url)
-	VALUES ($1,$2,$3,$4,$5) ON CONFLICT (xivauthkey) DO NOTHING;`
+	query_char := `INSERT INTO characters_claim (xivauthkey,claim_by,lodestone_id,avatar_url,portrait_url,charname,datacenter,homeworld)
+	VALUES ($1,$2,$3,$4,$5,$6,$7,$8) ON CONFLICT (xivauthkey,charname,datacenter,homeworld) DO NOTHING;`
+	fmt.Println(sessionData.Characters)
 	for _, char := range sessionData.Characters {
-		tx.QueryRow(ctx, query_char, char.PersistentKey, myuserID, char.LodestoneID, char.AvatarURL, char.PortraitURL)
+		_, err := tx.Exec(ctx, query_char, char.PersistentKey, myuserID, char.LodestoneID, char.AvatarURL, char.PortraitURL, char.Name, char.DataCenter, char.HomeWorld)
+		if err != nil {
+			fmt.Println(err)
+		}
 	}
 	//NOTE:I created EnrollCharacter but it's unused for now, so there is no way to add a character without logging out then in
 	//TODO: actually implement it lmao
+	tx.Commit(ctx)
 	return &lg.LoginReply{SessionID: sessionID}, nil
 }
 
@@ -257,7 +266,7 @@ func (s *loggingWayServer) EncounterIngest(ctx context.Context, request *lg.NewE
 	return &lg.NewEncounterReply{Code: 0}, nil
 }
 
-func (s *loggingWayServer) CreateNewReport(ctx context.Context, request *lg.NewReportRequest) (*lg.NewReportReply, error) {
+/*func (s *loggingWayServer) CreateNewReport(ctx context.Context, request *lg.NewReportRequest) (*lg.NewReportReply, error) {
 	conn, err := s.connpool.Acquire(ctx)
 	if err != nil {
 		fmt.Printf("error:%v", err)
@@ -276,7 +285,7 @@ func (s *loggingWayServer) CreateNewReport(ctx context.Context, request *lg.NewR
 	}
 	conn.Release()
 	return &lg.NewReportReply{Reportid: reportID}, nil
-}
+}*/
 
 // endpoint should mainly be used as a refresher,TODO:dont forget rate limits
 func (s *loggingWayServer) GetMyCharacters(ctx context.Context, request *lg.GetMyCharactersRequest) (*lg.GetMyCharactersReply, error) {
@@ -389,6 +398,8 @@ func (s *loggingWayServer) GetEncountersStats(ctx context.Context, request *lg.G
 		encounters.Scan(
 			&s.ID,
 			&s.EncounterID,
+			&s.uploaded_by,
+			&s.character,
 			&s.PlayerID,
 			&s.PlayerName,
 			&s.TotalDamage,
