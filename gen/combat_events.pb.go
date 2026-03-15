@@ -2180,6 +2180,78 @@ func (x *GetEncountersStatsReply) GetPlayerstats() []*EncounterPlayerBreakdown {
 	return nil
 }
 
+type EnrollCharactersRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *EnrollCharactersRequest) Reset() {
+	*x = EnrollCharactersRequest{}
+	mi := &file_combat_events_proto_msgTypes[30]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *EnrollCharactersRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*EnrollCharactersRequest) ProtoMessage() {}
+
+func (x *EnrollCharactersRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_combat_events_proto_msgTypes[30]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use EnrollCharactersRequest.ProtoReflect.Descriptor instead.
+func (*EnrollCharactersRequest) Descriptor() ([]byte, []int) {
+	return file_combat_events_proto_rawDescGZIP(), []int{30}
+}
+
+type EnrollCharactersReply struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *EnrollCharactersReply) Reset() {
+	*x = EnrollCharactersReply{}
+	mi := &file_combat_events_proto_msgTypes[31]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *EnrollCharactersReply) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*EnrollCharactersReply) ProtoMessage() {}
+
+func (x *EnrollCharactersReply) ProtoReflect() protoreflect.Message {
+	mi := &file_combat_events_proto_msgTypes[31]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use EnrollCharactersReply.ProtoReflect.Descriptor instead.
+func (*EnrollCharactersReply) Descriptor() ([]byte, []int) {
+	return file_combat_events_proto_rawDescGZIP(), []int{31}
+}
+
 // types
 type Character struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -2194,7 +2266,7 @@ type Character struct {
 
 func (x *Character) Reset() {
 	*x = Character{}
-	mi := &file_combat_events_proto_msgTypes[30]
+	mi := &file_combat_events_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2206,7 +2278,7 @@ func (x *Character) String() string {
 func (*Character) ProtoMessage() {}
 
 func (x *Character) ProtoReflect() protoreflect.Message {
-	mi := &file_combat_events_proto_msgTypes[30]
+	mi := &file_combat_events_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2219,7 +2291,7 @@ func (x *Character) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Character.ProtoReflect.Descriptor instead.
 func (*Character) Descriptor() ([]byte, []int) {
-	return file_combat_events_proto_rawDescGZIP(), []int{30}
+	return file_combat_events_proto_rawDescGZIP(), []int{32}
 }
 
 func (x *Character) GetName() string {
@@ -2268,7 +2340,7 @@ type Report struct {
 
 func (x *Report) Reset() {
 	*x = Report{}
-	mi := &file_combat_events_proto_msgTypes[31]
+	mi := &file_combat_events_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2280,7 +2352,7 @@ func (x *Report) String() string {
 func (*Report) ProtoMessage() {}
 
 func (x *Report) ProtoReflect() protoreflect.Message {
-	mi := &file_combat_events_proto_msgTypes[31]
+	mi := &file_combat_events_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2293,7 +2365,7 @@ func (x *Report) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Report.ProtoReflect.Descriptor instead.
 func (*Report) Descriptor() ([]byte, []int) {
-	return file_combat_events_proto_rawDescGZIP(), []int{31}
+	return file_combat_events_proto_rawDescGZIP(), []int{33}
 }
 
 func (x *Report) GetReportId() int64 {
@@ -2328,7 +2400,7 @@ type Encounter struct {
 
 func (x *Encounter) Reset() {
 	*x = Encounter{}
-	mi := &file_combat_events_proto_msgTypes[32]
+	mi := &file_combat_events_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2340,7 +2412,7 @@ func (x *Encounter) String() string {
 func (*Encounter) ProtoMessage() {}
 
 func (x *Encounter) ProtoReflect() protoreflect.Message {
-	mi := &file_combat_events_proto_msgTypes[32]
+	mi := &file_combat_events_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2353,7 +2425,7 @@ func (x *Encounter) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Encounter.ProtoReflect.Descriptor instead.
 func (*Encounter) Descriptor() ([]byte, []int) {
-	return file_combat_events_proto_rawDescGZIP(), []int{32}
+	return file_combat_events_proto_rawDescGZIP(), []int{34}
 }
 
 func (x *Encounter) GetEncounterId() int64 {
@@ -2396,7 +2468,7 @@ type EncounterPlayerBreakdown struct {
 
 func (x *EncounterPlayerBreakdown) Reset() {
 	*x = EncounterPlayerBreakdown{}
-	mi := &file_combat_events_proto_msgTypes[33]
+	mi := &file_combat_events_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2408,7 +2480,7 @@ func (x *EncounterPlayerBreakdown) String() string {
 func (*EncounterPlayerBreakdown) ProtoMessage() {}
 
 func (x *EncounterPlayerBreakdown) ProtoReflect() protoreflect.Message {
-	mi := &file_combat_events_proto_msgTypes[33]
+	mi := &file_combat_events_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2421,7 +2493,7 @@ func (x *EncounterPlayerBreakdown) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use EncounterPlayerBreakdown.ProtoReflect.Descriptor instead.
 func (*EncounterPlayerBreakdown) Descriptor() ([]byte, []int) {
-	return file_combat_events_proto_rawDescGZIP(), []int{33}
+	return file_combat_events_proto_rawDescGZIP(), []int{35}
 }
 
 func (x *EncounterPlayerBreakdown) GetName() string {
@@ -2510,7 +2582,7 @@ type CombatEventIngestReturn struct {
 
 func (x *CombatEventIngestReturn) Reset() {
 	*x = CombatEventIngestReturn{}
-	mi := &file_combat_events_proto_msgTypes[34]
+	mi := &file_combat_events_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2522,7 +2594,7 @@ func (x *CombatEventIngestReturn) String() string {
 func (*CombatEventIngestReturn) ProtoMessage() {}
 
 func (x *CombatEventIngestReturn) ProtoReflect() protoreflect.Message {
-	mi := &file_combat_events_proto_msgTypes[34]
+	mi := &file_combat_events_proto_msgTypes[36]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2535,7 +2607,7 @@ func (x *CombatEventIngestReturn) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CombatEventIngestReturn.ProtoReflect.Descriptor instead.
 func (*CombatEventIngestReturn) Descriptor() ([]byte, []int) {
-	return file_combat_events_proto_rawDescGZIP(), []int{34}
+	return file_combat_events_proto_rawDescGZIP(), []int{36}
 }
 
 func (x *CombatEventIngestReturn) GetCode() uint32 {
@@ -2685,7 +2757,9 @@ const file_combat_events_proto_rawDesc = "" +
 	"\x19GetEncountersStatsRequest\x12!\n" +
 	"\fencounter_id\x18\x01 \x01(\x03R\vencounterId\"d\n" +
 	"\x17GetEncountersStatsReply\x12I\n" +
-	"\vplayerstats\x18\x01 \x03(\v2'.combat_events.EncounterPlayerBreakdownR\vplayerstats\"\xa2\x01\n" +
+	"\vplayerstats\x18\x01 \x03(\v2'.combat_events.EncounterPlayerBreakdownR\vplayerstats\"\x19\n" +
+	"\x17EnrollCharactersRequest\"\x17\n" +
+	"\x15EnrollCharactersReply\"\xa2\x01\n" +
 	"\tCharacter\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1c\n" +
 	"\thomeworld\x18\x02 \x01(\tR\thomeworld\x12\x1e\n" +
@@ -2784,7 +2858,7 @@ const file_combat_events_proto_rawDesc = "" +
 	"\bOrnament\x10\x0f*'\n" +
 	"\x10EncounterEndKind\x12\t\n" +
 	"\x05Clear\x10\x00\x12\b\n" +
-	"\x04Wipe\x10\x012\xca\x06\n" +
+	"\x04Wipe\x10\x012\xae\a\n" +
 	"\n" +
 	"Loggingway\x12h\n" +
 	"\x12GetXivAuthRedirect\x12(.combat_events.GetXivAuthRedirectRequest\x1a&.combat_events.GetXivAuthRedirectReply\"\x00\x12A\n" +
@@ -2794,7 +2868,8 @@ const file_combat_events_proto_rawDesc = "" +
 	"\x0fGetMyCharacters\x12%.combat_events.GetMyCharactersRequest\x1a#.combat_events.GetMyCharactersReply\"\x00\x12V\n" +
 	"\fGetMyReports\x12\".combat_events.GetMyReportsRequest\x1a .combat_events.GetMyReportsReply\"\x00\x12_\n" +
 	"\x0fGetMyEncounters\x12%.combat_events.GetMyEncountersRequest\x1a#.combat_events.GetMyEncountersReply\"\x00\x12h\n" +
-	"\x12GetEncountersStats\x12(.combat_events.GetEncountersStatsRequest\x1a&.combat_events.GetEncountersStatsReply\"\x00\x12[\n" +
+	"\x12GetEncountersStats\x12(.combat_events.GetEncountersStatsRequest\x1a&.combat_events.GetEncountersStatsReply\"\x00\x12b\n" +
+	"\x10EnrollCharacters\x12&.combat_events.EnrollCharactersRequest\x1a$.combat_events.EnrollCharactersReply\"\x00\x12[\n" +
 	"\x11CombatEventIngest\x12\x1a.combat_events.CombatEvent\x1a&.combat_events.CombatEventIngestReturn\"\x00(\x01B,Z\x11gen/combat_events\xaa\x02\x16LoggingWayPlugin.Protob\x06proto3"
 
 var (
@@ -2810,7 +2885,7 @@ func file_combat_events_proto_rawDescGZIP() []byte {
 }
 
 var file_combat_events_proto_enumTypes = make([]protoimpl.EnumInfo, 5)
-var file_combat_events_proto_msgTypes = make([]protoimpl.MessageInfo, 35)
+var file_combat_events_proto_msgTypes = make([]protoimpl.MessageInfo, 37)
 var file_combat_events_proto_goTypes = []any{
 	(StatusCategory)(0),               // 0: combat_events.StatusCategory
 	(DamageType)(0),                   // 1: combat_events.DamageType
@@ -2847,11 +2922,13 @@ var file_combat_events_proto_goTypes = []any{
 	(*GetMyEncountersReply)(nil),      // 32: combat_events.GetMyEncountersReply
 	(*GetEncountersStatsRequest)(nil), // 33: combat_events.GetEncountersStatsRequest
 	(*GetEncountersStatsReply)(nil),   // 34: combat_events.GetEncountersStatsReply
-	(*Character)(nil),                 // 35: combat_events.Character
-	(*Report)(nil),                    // 36: combat_events.Report
-	(*Encounter)(nil),                 // 37: combat_events.Encounter
-	(*EncounterPlayerBreakdown)(nil),  // 38: combat_events.EncounterPlayerBreakdown
-	(*CombatEventIngestReturn)(nil),   // 39: combat_events.CombatEventIngestReturn
+	(*EnrollCharactersRequest)(nil),   // 35: combat_events.EnrollCharactersRequest
+	(*EnrollCharactersReply)(nil),     // 36: combat_events.EnrollCharactersReply
+	(*Character)(nil),                 // 37: combat_events.Character
+	(*Report)(nil),                    // 38: combat_events.Report
+	(*Encounter)(nil),                 // 39: combat_events.Encounter
+	(*EncounterPlayerBreakdown)(nil),  // 40: combat_events.EncounterPlayerBreakdown
+	(*CombatEventIngestReturn)(nil),   // 41: combat_events.CombatEventIngestReturn
 }
 var file_combat_events_proto_depIdxs = []int32{
 	6,  // 0: combat_events.CombatEvent.source:type_name -> combat_events.Entity
@@ -2875,11 +2952,11 @@ var file_combat_events_proto_depIdxs = []int32{
 	2,  // 18: combat_events.DamageTakenData.display_type:type_name -> combat_events.ActionType
 	4,  // 19: combat_events.EncounterEndData.reason:type_name -> combat_events.EncounterEndKind
 	5,  // 20: combat_events.NewEncounterRequest.events:type_name -> combat_events.CombatEvent
-	35, // 21: combat_events.GetMyCharactersReply.characters:type_name -> combat_events.Character
-	36, // 22: combat_events.GetMyReportsReply.reports:type_name -> combat_events.Report
-	37, // 23: combat_events.GetMyEncountersReply.encounters:type_name -> combat_events.Encounter
-	38, // 24: combat_events.GetEncountersStatsReply.playerstats:type_name -> combat_events.EncounterPlayerBreakdown
-	37, // 25: combat_events.Report.encounters:type_name -> combat_events.Encounter
+	37, // 21: combat_events.GetMyCharactersReply.characters:type_name -> combat_events.Character
+	38, // 22: combat_events.GetMyReportsReply.reports:type_name -> combat_events.Report
+	39, // 23: combat_events.GetMyEncountersReply.encounters:type_name -> combat_events.Encounter
+	40, // 24: combat_events.GetEncountersStatsReply.playerstats:type_name -> combat_events.EncounterPlayerBreakdown
+	39, // 25: combat_events.Report.encounters:type_name -> combat_events.Encounter
 	19, // 26: combat_events.Loggingway.GetXivAuthRedirect:input_type -> combat_events.GetXivAuthRedirectRequest
 	21, // 27: combat_events.Loggingway.Login:input_type -> combat_events.LoginRequest
 	23, // 28: combat_events.Loggingway.CreateNewReport:input_type -> combat_events.NewReportRequest
@@ -2888,18 +2965,20 @@ var file_combat_events_proto_depIdxs = []int32{
 	29, // 31: combat_events.Loggingway.GetMyReports:input_type -> combat_events.GetMyReportsRequest
 	31, // 32: combat_events.Loggingway.GetMyEncounters:input_type -> combat_events.GetMyEncountersRequest
 	33, // 33: combat_events.Loggingway.GetEncountersStats:input_type -> combat_events.GetEncountersStatsRequest
-	5,  // 34: combat_events.Loggingway.CombatEventIngest:input_type -> combat_events.CombatEvent
-	20, // 35: combat_events.Loggingway.GetXivAuthRedirect:output_type -> combat_events.GetXivAuthRedirectReply
-	22, // 36: combat_events.Loggingway.Login:output_type -> combat_events.LoginReply
-	24, // 37: combat_events.Loggingway.CreateNewReport:output_type -> combat_events.NewReportReply
-	26, // 38: combat_events.Loggingway.EncounterIngest:output_type -> combat_events.NewEncounterReply
-	28, // 39: combat_events.Loggingway.GetMyCharacters:output_type -> combat_events.GetMyCharactersReply
-	30, // 40: combat_events.Loggingway.GetMyReports:output_type -> combat_events.GetMyReportsReply
-	32, // 41: combat_events.Loggingway.GetMyEncounters:output_type -> combat_events.GetMyEncountersReply
-	34, // 42: combat_events.Loggingway.GetEncountersStats:output_type -> combat_events.GetEncountersStatsReply
-	39, // 43: combat_events.Loggingway.CombatEventIngest:output_type -> combat_events.CombatEventIngestReturn
-	35, // [35:44] is the sub-list for method output_type
-	26, // [26:35] is the sub-list for method input_type
+	35, // 34: combat_events.Loggingway.EnrollCharacters:input_type -> combat_events.EnrollCharactersRequest
+	5,  // 35: combat_events.Loggingway.CombatEventIngest:input_type -> combat_events.CombatEvent
+	20, // 36: combat_events.Loggingway.GetXivAuthRedirect:output_type -> combat_events.GetXivAuthRedirectReply
+	22, // 37: combat_events.Loggingway.Login:output_type -> combat_events.LoginReply
+	24, // 38: combat_events.Loggingway.CreateNewReport:output_type -> combat_events.NewReportReply
+	26, // 39: combat_events.Loggingway.EncounterIngest:output_type -> combat_events.NewEncounterReply
+	28, // 40: combat_events.Loggingway.GetMyCharacters:output_type -> combat_events.GetMyCharactersReply
+	30, // 41: combat_events.Loggingway.GetMyReports:output_type -> combat_events.GetMyReportsReply
+	32, // 42: combat_events.Loggingway.GetMyEncounters:output_type -> combat_events.GetMyEncountersReply
+	34, // 43: combat_events.Loggingway.GetEncountersStats:output_type -> combat_events.GetEncountersStatsReply
+	36, // 44: combat_events.Loggingway.EnrollCharacters:output_type -> combat_events.EnrollCharactersReply
+	41, // 45: combat_events.Loggingway.CombatEventIngest:output_type -> combat_events.CombatEventIngestReturn
+	36, // [36:46] is the sub-list for method output_type
+	26, // [26:36] is the sub-list for method input_type
 	26, // [26:26] is the sub-list for extension type_name
 	26, // [26:26] is the sub-list for extension extendee
 	0,  // [0:26] is the sub-list for field type_name
@@ -2928,7 +3007,7 @@ func file_combat_events_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_combat_events_proto_rawDesc), len(file_combat_events_proto_rawDesc)),
 			NumEnums:      5,
-			NumMessages:   35,
+			NumMessages:   37,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

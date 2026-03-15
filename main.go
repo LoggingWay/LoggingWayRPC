@@ -15,6 +15,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/auth"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/noevain/xivauthgo"
 	"golang.org/x/oauth2"
@@ -191,6 +192,36 @@ func (s *loggingWayServer) Login(ctx context.Context, request *lg.LoginRequest) 
 	if err != nil {
 		return nil, status.Error(codes.Internal, "Failed to create session")
 	}
+	conn, err := s.connpool.Acquire(ctx)
+	if err != nil {
+		return nil, status.Error(codes.Aborted, "Failed to acquire db connection")
+	}
+	tx, err := conn.BeginTx(ctx, pgx.TxOptions{
+		IsoLevel:       pgx.Serializable,
+		AccessMode:     pgx.ReadWrite,
+		DeferrableMode: pgx.NotDeferrable,
+	})
+	if err != nil {
+		return nil, status.Error(codes.Aborted, "Failed to create transaction")
+	}
+	defer tx.Rollback(ctx) //auto-fails if tx is commited before this fct returns
+	query := `INSERT INTO users (xivauthid,username,verified_characters)
+		VALUES ($1,$2,$3)
+		ON CONFLICT (xivauthid) DO NOTHING
+		RETURNING id;
+	`
+	var myuserID int64
+	err = tx.QueryRow(ctx, query, sessionData.UserID, "None", true).Scan(&myuserID)
+	if err != nil { //if conflict,no row returned so we can skip the character insert
+		return &lg.LoginReply{SessionID: sessionID}, nil
+	}
+	query_char := `INSERT INTO characters_claim (xivauthkey,claim_by,lodestone_id,avatar_url,portrait_url)
+	VALUES ($1,$2,$3,$4,$5) ON CONFLICT (xivauthkey) DO NOTHING;`
+	for _, char := range sessionData.Characters {
+		tx.QueryRow(ctx, query_char, char.PersistentKey, myuserID, char.LodestoneID, char.AvatarURL, char.PortraitURL)
+	}
+	//NOTE:I created EnrollCharacter but it's unused for now, so there is no way to add a character without logging out then in
+	//TODO: actually implement it lmao
 	return &lg.LoginReply{SessionID: sessionID}, nil
 }
 

@@ -1,5 +1,5 @@
 CREATE TABLE users (
-    id uuid PRIMARY KEY,
+    id uuid PRIMARY KEY DEFAULT uuid_generate_v4() ,
     xivauthid uuid NOT NULL,
     username TEXT DEFAULT NULL,
     verified_characters BOOLEAN NOT NULL,
@@ -7,12 +7,14 @@ CREATE TABLE users (
 );
 
 CREATE TABLE characters_claim (
-    id TEXT PRIMARY KEY,/* XIVAuth persistent key*/
+    id uuid PRIMARY KEY DEFAULT uuid_generate_v4() ,
+    xivauthkey TEXT NOT NULL,/* XIVAuth persistent key*/
     claim_by uuid REFERENCES users(id),
     lodestone_id INTEGER NOT NULL,
     avatar_url TEXT,
     portrait_url TEXT,
     claim_registered TIMESTAMPTZ NOT NULL DEFAULT now()/*When the user registered on loggingway*/
+    UNIQUE(xivauthkey)
 );
 
 
