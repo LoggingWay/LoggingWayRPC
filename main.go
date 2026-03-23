@@ -21,6 +21,7 @@ import (
 	"golang.org/x/oauth2"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 
 	_ "github.com/joho/godotenv/autoload"
@@ -43,12 +44,19 @@ type Report struct {
 	CreatedAt  time.Time
 }
 
+type charDataLeaderboard struct {
+	Name       string
+	Homeworld  string
+	Datacenter string
+	AvatarURL  *string
+}
+
 // for now, no point in exposing payload
 type EncounterNoPayload struct {
 	ID          int64
 	zone_id     int32
 	uploaded_at time.Time
-	uploaded_by int64
+	uploaded_by uuid.UUID
 }
 
 type EncounterPlayerStats struct {
@@ -58,19 +66,22 @@ type EncounterPlayerStats struct {
 	character       uuid.UUID
 	PlayerID        int64
 	PlayerName      string
+	JobId           int32
 	TotalDamage     int64
+	TotalPscore     float32
 	TotalHealing    int64
 	TotalHits       int64
 	TotalCrits      int64
 	TotalDirectHits int64
 	FirstTimestamp  int64
 	LastTimestamp   int64
-	DurationSeconds float64
-	DPS             float64
-	HPS             float64
-	CritRate        float64
-	DirectHitRate   float64
+	DurationSeconds float32
+	DPS             float32
+	HPS             float32
+	CritRate        float32
+	DirectHitRate   float32
 	CreatedAt       time.Time
+	CfcId           int32 //PGSQL does not store unsigned value
 }
 
 /*
@@ -106,6 +117,7 @@ func newServer() *loggingWayServer {
 		[]string{
 			xivauth.ScopeUser,
 			xivauth.ScopeCharacterAll,
+			xivauth.ScopeRefresh,
 		})
 	if err != nil {
 		log.Fatalf("Failed to initialize xivauthservice: %v", err)
@@ -117,7 +129,7 @@ func newServer() *loggingWayServer {
 		"",
 		0,
 		"session",
-		24*time.Hour,
+		168*time.Hour, //session live for 1 week
 		xivs,
 	)
 	redistate := redisservice.NewRedisStateStoreService(os.Getenv("REDIS_ADDR"),
@@ -183,16 +195,6 @@ func (s *loggingWayServer) Login(ctx context.Context, request *lg.LoginRequest) 
 	if err != nil {
 		return nil, status.Error(codes.Unknown, "Could not retrieve characters")
 	}
-	sessionData := redisservice.UserSession{
-		UserID:      user.ID,
-		AccessToken: *token,
-		Characters:  character,
-	}
-	sessionID := uuid.NewString()
-	err = s.Sessioner.CreateSession(ctx, sessionID, sessionData)
-	if err != nil {
-		return nil, status.Error(codes.Internal, "Failed to create session")
-	}
 	conn, err := s.connpool.Acquire(ctx)
 	if err != nil {
 		return nil, status.Error(codes.Aborted, "Failed to acquire db connection")
@@ -213,11 +215,22 @@ func (s *loggingWayServer) Login(ctx context.Context, request *lg.LoginRequest) 
 	//this query is a hack,the update clause will do nothing but if you do DO NOTHING and there is conflict, it will return 0000-0000-0etc.. which
 	//mean you'd have to do another query to check the user... this allows to just do 1 and have both
 	var myuserID uuid.UUID
-	err = tx.QueryRow(ctx, query, sessionData.UserID, "None", true).Scan(&myuserID)
+	err = tx.QueryRow(ctx, query, user.ID, "None", true).Scan(&myuserID)
 	if err != nil { //if conflict,no row returned so we can skip the character insert
-		//fmt.Println(err)
-		//return &lg.LoginReply{SessionID: sessionID}, nil
+		return nil, status.Error(codes.Internal, "Failed to insert/update user")
 	}
+	sessionData := redisservice.UserSession{
+		UserID:      myuserID.String(),
+		XivAuthID:   user.ID,
+		AccessToken: *token,
+		Characters:  character,
+	}
+	sessionID := uuid.NewString()
+	err = s.Sessioner.CreateSession(ctx, sessionID, sessionData)
+	if err != nil {
+		return nil, status.Error(codes.Internal, "Failed to create session")
+	}
+
 	query_char := `INSERT INTO characters_claim (xivauthkey,claim_by,lodestone_id,avatar_url,portrait_url,charname,datacenter,homeworld)
 	VALUES ($1,$2,$3,$4,$5,$6,$7,$8) ON CONFLICT (xivauthkey,charname,datacenter,homeworld) DO NOTHING;`
 	for _, char := range sessionData.Characters {
@@ -232,11 +245,22 @@ func (s *loggingWayServer) Login(ctx context.Context, request *lg.LoginRequest) 
 	return &lg.LoginReply{SessionID: sessionID}, nil
 }
 
+func (s *loggingWayServer) Logout(ctx context.Context, request *lg.LogoutRequest) (*lg.LogoutReply, error) {
+	md, _ := metadata.FromIncomingContext(ctx) //impossible for this to fail,middleware would have before
+	token := md["authorization"]
+	err := s.Sessioner.DeleteSession(ctx, token[0])
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, "Session was either not found or already dead")
+	}
+	return &lg.LogoutReply{}, nil
+}
+
 // endpoint should mainly be used as a refresher,TODO:dont forget rate limits
 func (s *loggingWayServer) GetMyCharacters(ctx context.Context, request *lg.GetMyCharactersRequest) (*lg.GetMyCharactersReply, error) {
 	sessiondata := ctx.Value("sessionData").(*redisservice.UserSession)
 	//TODO:move Token management to a middleware,have the AccessToken exposed via ctx instead
 	tksource := s.oauthConfig.TokenSource(ctx, &sessiondata.AccessToken)
+	fmt.Println("Refresh token:", sessiondata.AccessToken.RefreshToken)
 	token, err := tksource.Token()
 	if err != nil {
 		return nil, status.Error(codes.Aborted, "Token expired or revoked")
@@ -261,29 +285,40 @@ func (s *loggingWayServer) GetMyEncounters(ctx context.Context, request *lg.GetM
 		fmt.Printf("error:%v", err)
 		return nil, status.Error(codes.Internal, "Failed to get encounters")
 	}
+	defer conn.Release()
 	var query string
+	var encounters pgx.Rows
+	var encounterslist []*lg.Encounter
 	if request.ZoneId == 0 {
-		query = `SELECT id,zone_id,uploaded_at,uploaded_by
+		query = `SELECT id,cfc_id,uploaded_at,uploaded_by
 	FROM encounters
 	WHERE uploaded_by = $1 LIMIT 20;`
+		encounters, err = conn.Query(ctx, query, sessiondata.UserID)
+		if err != nil {
+			fmt.Println(err)
+			return nil, status.Error(codes.NotFound, "Failed to read encounters")
+		}
 	} else {
-		query = `SELECT id,zone_id,uploaded_at,uploaded_by
+		query = `SELECT id,cfc_id,uploaded_at,uploaded_by
 	FROM encounters
-	WHERE uploaded_by = $1 AND zone_id = $2 LIMIT 20;`
-	}
-	var encounterslist []*lg.Encounter
-	encounters, err := conn.Query(ctx, query, sessiondata.UserID, request.ZoneId)
-	if err != nil {
-		return nil, status.Error(codes.NotFound, "Failed to read encounters")
+	WHERE uploaded_by = $1 AND cfc_id = $2 LIMIT 20;`
+		encounters, err = conn.Query(ctx, query, sessiondata.UserID, request.ZoneId)
+		if err != nil {
+			fmt.Println(err)
+			return nil, status.Error(codes.NotFound, "Failed to read encounters")
+		}
 	}
 	for encounters.Next() {
 		var s EncounterNoPayload
-		encounters.Scan(
+		if err := encounters.Scan(
 			&s.ID,
 			&s.zone_id,
 			&s.uploaded_at,
 			&s.uploaded_by,
-		)
+		); err != nil {
+			fmt.Println("scan error:", err)
+			continue
+		}
 		encounterslist = append(encounterslist, &lg.Encounter{
 			EncounterId: s.ID,
 			ZoneId:      uint32(s.zone_id),
@@ -305,53 +340,127 @@ func (s *loggingWayServer) GetEncountersStats(ctx context.Context, request *lg.G
 	if err != nil {
 		return nil, status.Error(codes.Aborted, "Failed to acquire db connection")
 	}
+	defer conn.Release()
+	sessiondata := ctx.Value("sessionData")
+	userid := uuid.MustParse(sessiondata.(*redisservice.UserSession).UserID)
 	query := `
-	SELECT * 
-	FROM encounter_player_stats
-	WHERE encounter_id = $1`
-	var encounterslist []*lg.EncounterPlayerBreakdown
-	encounters, err := conn.Query(ctx, query, request.EncounterId)
+SELECT eps.encounter_id, eps.uploaded_by, eps.character, eps.player_id, eps.player_name, 
+       eps.job_id, eps.total_damage, eps.total_pscore, eps.total_healing, eps.total_hits,
+       eps.total_crits, eps.total_direct_hits, eps.first_timestamp, eps.last_timestamp, 
+       eps.duration_seconds, eps.dps, eps.hps, eps.crit_rate, eps.direct_hit_rate, 
+       eps.created_at, e.cfc_id
+FROM encounter_player_stats eps
+JOIN encounters e ON eps.encounter_id = e.id
+WHERE eps.encounter_id = $1` //This query is fairly heavy and could use a little work but should be fine for a while
+	var encounterResponse lg.EncounterPlayerBreakdown
+	var queried EncounterPlayerStats
+	//I know, could just scan the entire object into the response, but in the future we want to tighly control what the client is allowed to see
+	err = conn.QueryRow(ctx, query, request.EncounterId).Scan(
+		&queried.EncounterID,
+		&queried.uploaded_by,
+		&queried.character,
+		&queried.PlayerID,
+		&queried.PlayerName,
+		&queried.JobId,
+		&queried.TotalDamage,
+		&queried.TotalPscore,
+		&queried.TotalHealing,
+		&queried.TotalHits,
+		&queried.TotalCrits,
+		&queried.TotalDirectHits,
+		&queried.FirstTimestamp,
+		&queried.LastTimestamp,
+		&queried.DurationSeconds,
+		&queried.DPS,
+		&queried.HPS,
+		&queried.CritRate,
+		&queried.DirectHitRate,
+		&queried.CreatedAt,
+		&queried.CfcId)
 	if err != nil {
-		return nil, status.Error(codes.Internal, "Failed to scan encounter db entry")
+		fmt.Println("scan error:", err)
+		return nil, status.Error(codes.NotFound, "Encounter ID not found")
 	}
-	for encounters.Next() {
-		var s EncounterPlayerStats
-		encounters.Scan(
-			&s.ID,
-			&s.EncounterID,
-			&s.uploaded_by,
-			&s.character,
-			&s.PlayerID,
-			&s.PlayerName,
-			&s.TotalDamage,
-			&s.TotalHealing,
-			&s.TotalHits,
-			&s.TotalCrits,
-			&s.TotalDirectHits,
-			&s.FirstTimestamp,
-			&s.LastTimestamp,
-			&s.DurationSeconds,
-			&s.DPS,
-			&s.HPS,
-			&s.CritRate,
-			&s.DirectHitRate,
-			&s.CreatedAt,
-		)
-		encounterslist = append(encounterslist, &lg.EncounterPlayerBreakdown{Name: s.PlayerName,
-			TotalDamage:     s.TotalDamage,
-			TotalHealing:    s.TotalHealing,
-			TotalHits:       s.TotalHits,
-			TotalCrits:      s.TotalCrits,
-			TotalDirectHits: s.TotalDirectHits,
-			Duration:        float32(s.DurationSeconds),
-			Dps:             float32(s.DPS),
-			Hps:             float32(s.HPS),
-			CritRate:        float32(s.CritRate),
-			DhRate:          float32(s.DirectHitRate),
-		})
+	if queried.uploaded_by != userid {
+		return nil, status.Error(codes.PermissionDenied, "Naughty little boy/girl/whatever(UserID does not match requested encounter)")
 	}
-	//TODO: check that the requesting user is also the uploader,might be worth restoring uploader field
-	return &lg.GetEncountersStatsReply{Playerstats: encounterslist}, nil
+	encounterResponse.Name = queried.PlayerName
+	encounterResponse.CritRate = queried.CritRate
+	encounterResponse.TotalDamage = queried.TotalDamage
+	encounterResponse.Dps = queried.DPS
+	encounterResponse.DhRate = queried.DirectHitRate
+	encounterResponse.Duration = queried.DurationSeconds
+	encounterResponse.Pscore = queried.TotalPscore
+	encounterResponse.TotalHits = queried.TotalHits
+	encounterResponse.TotalCrits = queried.TotalCrits
+	encounterResponse.TotalDirectHits = queried.TotalDirectHits
+	encounterResponse.JobId = uint32(queried.JobId)
+	rank, total, err := s.Publisher.GetEncounterRankPerJob(ctx, queried.character, uint32(queried.CfcId), uint32(queried.JobId))
+	if err != nil { //err is not just redis.Nil
+		return nil, status.Error(codes.Unknown, "Leaderboard lookup failed very hard")
+	}
+	encounterResponse.Rank = rank
+	encounterResponse.TotalRanked = total
+	global, tglobal, err := s.Publisher.GetEncounterRank(ctx, queried.character, uint32(queried.CfcId))
+	if err != nil {
+		return nil, status.Error(codes.Unknown, "Leaderboard lookup failed very hard")
+	}
+	encounterResponse.GlobalRank = global
+	encounterResponse.GlobalTotalRank = tglobal
+	return &lg.GetEncountersStatsReply{Playerstats: &encounterResponse}, nil
+
+}
+
+func (s *loggingWayServer) GetLeaderBoard(ctx context.Context, request *lg.GetLeaderBoardRequest) (*lg.GetLeaderBoardReply, error) {
+	conn, err := s.connpool.Acquire(ctx)
+	if err != nil {
+		fmt.Printf("error:%v", err)
+		return nil, status.Error(codes.Internal, "Failed to get leaderboard")
+	}
+	defer conn.Release()
+	var jobid *uint32
+	if request.JobId != 0 {
+		jobid = &request.JobId
+	}
+	entries, total, err := s.Publisher.GetLeaderboard(ctx, request.ZoneId, jobid)
+	if err != nil {
+		return nil, status.Error(codes.Internal, "Failed to pull leaderboard info")
+	}
+	characterIDs := make([]string, len(entries))
+	for i, e := range entries {
+		characterIDs[i] = e.CharacterID
+	}
+	rows, err := conn.Query(ctx, `
+        SELECT id, charname, homeworld, datacenter
+        FROM characters_claim
+        WHERE id = ANY($1)`,
+		characterIDs)
+	if err != nil {
+		fmt.Println("failed to enrich leaderboard: %w", err)
+		return nil, status.Error(codes.Internal, "Failed to pull leaderboard info(pgsql)")
+	}
+	defer rows.Close()
+	charMap := make(map[string]charDataLeaderboard)
+	for rows.Next() {
+		var id string
+		var c charDataLeaderboard
+		if err := rows.Scan(&id, &c.Name, &c.Homeworld, &c.Datacenter); err != nil {
+			return nil, status.Error(codes.Internal, "Failed to bind character and leaderboard data?")
+		}
+		charMap[id] = c
+	}
+	var ent []*lg.LeaderBoardEntry
+	for _, e := range entries {
+		if c, ok := charMap[e.CharacterID]; ok {
+			ent = append(ent, &lg.LeaderBoardEntry{
+				Char:    &lg.Character{Name: c.Name, Homeworld: c.Homeworld, Datacenter: c.Datacenter},
+				Rank:    e.Rank,
+				Psccore: float32(e.Score),
+				Jobid:   request.JobId}) //GetLeaderboard return the approriate result
+		}
+
+	}
+	return &lg.GetLeaderBoardReply{Entry: ent, TotalRanked: total}, nil
 
 }
 func generateState() (string, error) {

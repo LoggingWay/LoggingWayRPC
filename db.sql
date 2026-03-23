@@ -21,27 +21,11 @@ CREATE TABLE characters_claim (
     UNIQUE(xivauthkey,charname,datacenter,homeworld)
 );
 
-/*
-CREATE TABLE characters (
-    id BIGINT PRIMARY KEY,/*ContentID of PC*/
-    xivauthkey TEXT DEFAULT NULL REFERENCES characters_claim(xivauthkey),
-    charname TEXT NOT NULL,
-    datacenter SMALLINT NOT NULL,
-    homeworld SMALLINT NOT NULL
-);
-*/
-/*
-CREATE TABLE reports (
-    id BIGSERIAL PRIMARY KEY,
-    created_by uuid REFERENCES users(id),
-    report_name TEXT,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
-);
-*/
+
 
 CREATE TABLE encounters(
     id BIGSERIAL PRIMARY KEY,
-    zone_id INTEGER,
+    cfc_id INTEGER,
     uploaded_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     uploaded_by uuid REFERENCES users(id),
     payload BYTEA NOT NULL
@@ -54,8 +38,9 @@ CREATE TABLE encounter_player_stats (
     character uuid REFERENCES characters_claim(id),
     player_id BIGINT NOT NULL,/*ID here is relative to the payload,aka gameobjectid of the player in the report*/
 	player_name TEXT NOT NULL,
+    job_id INTEGER NOT NULL,
     total_damage BIGINT NOT NULL,
-    total_pscore BIGINT NOT NULL,
+    total_pscore DOUBLE PRECISION NOT NULL,
     total_healing BIGINT NOT NULL,
 
     total_hits BIGINT NOT NULL,
@@ -75,6 +60,24 @@ CREATE TABLE encounter_player_stats (
 
     UNIQUE(encounter_id, player_id)
 );
+
+/*
+CREATE TABLE characters (
+    id BIGINT PRIMARY KEY,/*ContentID of PC*/
+    xivauthkey TEXT DEFAULT NULL REFERENCES characters_claim(xivauthkey),
+    charname TEXT NOT NULL,
+    datacenter SMALLINT NOT NULL,
+    homeworld SMALLINT NOT NULL
+);
+*/
+/*
+CREATE TABLE reports (
+    id BIGSERIAL PRIMARY KEY,
+    created_by uuid REFERENCES users(id),
+    report_name TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+*/
 /*
 CREATE TABLE encounter_player_action_stats (
     id BIGSERIAL PRIMARY KEY,

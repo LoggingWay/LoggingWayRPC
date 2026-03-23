@@ -26,6 +26,7 @@ type RedisSessionService struct {
 
 type UserSession struct {
 	UserID      string
+	XivAuthID   string
 	Characters  []xivauth.Character
 	AccessToken oauth2.Token
 }

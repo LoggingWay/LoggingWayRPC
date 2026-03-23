@@ -21,6 +21,8 @@ const _ = grpc.SupportPackageIsVersion9
 const (
 	Loggingway_GetXivAuthRedirect_FullMethodName = "/combat_events.Loggingway/GetXivAuthRedirect"
 	Loggingway_Login_FullMethodName              = "/combat_events.Loggingway/Login"
+	Loggingway_SessionRefresh_FullMethodName     = "/combat_events.Loggingway/SessionRefresh"
+	Loggingway_Logout_FullMethodName             = "/combat_events.Loggingway/Logout"
 	Loggingway_CreateNewReport_FullMethodName    = "/combat_events.Loggingway/CreateNewReport"
 	Loggingway_EncounterIngest_FullMethodName    = "/combat_events.Loggingway/EncounterIngest"
 	Loggingway_GetMyCharacters_FullMethodName    = "/combat_events.Loggingway/GetMyCharacters"
@@ -28,6 +30,7 @@ const (
 	Loggingway_GetMyEncounters_FullMethodName    = "/combat_events.Loggingway/GetMyEncounters"
 	Loggingway_GetEncountersStats_FullMethodName = "/combat_events.Loggingway/GetEncountersStats"
 	Loggingway_EnrollCharacters_FullMethodName   = "/combat_events.Loggingway/EnrollCharacters"
+	Loggingway_GetLeaderBoard_FullMethodName     = "/combat_events.Loggingway/GetLeaderBoard"
 	Loggingway_CombatEventIngest_FullMethodName  = "/combat_events.Loggingway/CombatEventIngest"
 )
 
@@ -41,6 +44,8 @@ type LoggingwayClient interface {
 	GetXivAuthRedirect(ctx context.Context, in *GetXivAuthRedirectRequest, opts ...grpc.CallOption) (*GetXivAuthRedirectReply, error)
 	// client send a code from xivauth, gets a sessionID
 	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginReply, error)
+	SessionRefresh(ctx context.Context, in *SessionRefreshRequest, opts ...grpc.CallOption) (*SessionRefreshReply, error)
+	Logout(ctx context.Context, in *LogoutRequest, opts ...grpc.CallOption) (*LogoutReply, error)
 	CreateNewReport(ctx context.Context, in *NewReportRequest, opts ...grpc.CallOption) (*NewReportReply, error)
 	EncounterIngest(ctx context.Context, in *NewEncounterRequest, opts ...grpc.CallOption) (*NewEncounterReply, error)
 	GetMyCharacters(ctx context.Context, in *GetMyCharactersRequest, opts ...grpc.CallOption) (*GetMyCharactersReply, error)
@@ -48,6 +53,7 @@ type LoggingwayClient interface {
 	GetMyEncounters(ctx context.Context, in *GetMyEncountersRequest, opts ...grpc.CallOption) (*GetMyEncountersReply, error)
 	GetEncountersStats(ctx context.Context, in *GetEncountersStatsRequest, opts ...grpc.CallOption) (*GetEncountersStatsReply, error)
 	EnrollCharacters(ctx context.Context, in *EnrollCharactersRequest, opts ...grpc.CallOption) (*EnrollCharactersReply, error)
+	GetLeaderBoard(ctx context.Context, in *GetLeaderBoardRequest, opts ...grpc.CallOption) (*GetLeaderBoardReply, error)
 	CombatEventIngest(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[CombatEvent, CombatEventIngestReturn], error)
 }
 
@@ -73,6 +79,26 @@ func (c *loggingwayClient) Login(ctx context.Context, in *LoginRequest, opts ...
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(LoginReply)
 	err := c.cc.Invoke(ctx, Loggingway_Login_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *loggingwayClient) SessionRefresh(ctx context.Context, in *SessionRefreshRequest, opts ...grpc.CallOption) (*SessionRefreshReply, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SessionRefreshReply)
+	err := c.cc.Invoke(ctx, Loggingway_SessionRefresh_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *loggingwayClient) Logout(ctx context.Context, in *LogoutRequest, opts ...grpc.CallOption) (*LogoutReply, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(LogoutReply)
+	err := c.cc.Invoke(ctx, Loggingway_Logout_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -149,6 +175,16 @@ func (c *loggingwayClient) EnrollCharacters(ctx context.Context, in *EnrollChara
 	return out, nil
 }
 
+func (c *loggingwayClient) GetLeaderBoard(ctx context.Context, in *GetLeaderBoardRequest, opts ...grpc.CallOption) (*GetLeaderBoardReply, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetLeaderBoardReply)
+	err := c.cc.Invoke(ctx, Loggingway_GetLeaderBoard_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *loggingwayClient) CombatEventIngest(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[CombatEvent, CombatEventIngestReturn], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	stream, err := c.cc.NewStream(ctx, &Loggingway_ServiceDesc.Streams[0], Loggingway_CombatEventIngest_FullMethodName, cOpts...)
@@ -172,6 +208,8 @@ type LoggingwayServer interface {
 	GetXivAuthRedirect(context.Context, *GetXivAuthRedirectRequest) (*GetXivAuthRedirectReply, error)
 	// client send a code from xivauth, gets a sessionID
 	Login(context.Context, *LoginRequest) (*LoginReply, error)
+	SessionRefresh(context.Context, *SessionRefreshRequest) (*SessionRefreshReply, error)
+	Logout(context.Context, *LogoutRequest) (*LogoutReply, error)
 	CreateNewReport(context.Context, *NewReportRequest) (*NewReportReply, error)
 	EncounterIngest(context.Context, *NewEncounterRequest) (*NewEncounterReply, error)
 	GetMyCharacters(context.Context, *GetMyCharactersRequest) (*GetMyCharactersReply, error)
@@ -179,6 +217,7 @@ type LoggingwayServer interface {
 	GetMyEncounters(context.Context, *GetMyEncountersRequest) (*GetMyEncountersReply, error)
 	GetEncountersStats(context.Context, *GetEncountersStatsRequest) (*GetEncountersStatsReply, error)
 	EnrollCharacters(context.Context, *EnrollCharactersRequest) (*EnrollCharactersReply, error)
+	GetLeaderBoard(context.Context, *GetLeaderBoardRequest) (*GetLeaderBoardReply, error)
 	CombatEventIngest(grpc.ClientStreamingServer[CombatEvent, CombatEventIngestReturn]) error
 	mustEmbedUnimplementedLoggingwayServer()
 }
@@ -195,6 +234,12 @@ func (UnimplementedLoggingwayServer) GetXivAuthRedirect(context.Context, *GetXiv
 }
 func (UnimplementedLoggingwayServer) Login(context.Context, *LoginRequest) (*LoginReply, error) {
 	return nil, status.Error(codes.Unimplemented, "method Login not implemented")
+}
+func (UnimplementedLoggingwayServer) SessionRefresh(context.Context, *SessionRefreshRequest) (*SessionRefreshReply, error) {
+	return nil, status.Error(codes.Unimplemented, "method SessionRefresh not implemented")
+}
+func (UnimplementedLoggingwayServer) Logout(context.Context, *LogoutRequest) (*LogoutReply, error) {
+	return nil, status.Error(codes.Unimplemented, "method Logout not implemented")
 }
 func (UnimplementedLoggingwayServer) CreateNewReport(context.Context, *NewReportRequest) (*NewReportReply, error) {
 	return nil, status.Error(codes.Unimplemented, "method CreateNewReport not implemented")
@@ -216,6 +261,9 @@ func (UnimplementedLoggingwayServer) GetEncountersStats(context.Context, *GetEnc
 }
 func (UnimplementedLoggingwayServer) EnrollCharacters(context.Context, *EnrollCharactersRequest) (*EnrollCharactersReply, error) {
 	return nil, status.Error(codes.Unimplemented, "method EnrollCharacters not implemented")
+}
+func (UnimplementedLoggingwayServer) GetLeaderBoard(context.Context, *GetLeaderBoardRequest) (*GetLeaderBoardReply, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetLeaderBoard not implemented")
 }
 func (UnimplementedLoggingwayServer) CombatEventIngest(grpc.ClientStreamingServer[CombatEvent, CombatEventIngestReturn]) error {
 	return status.Error(codes.Unimplemented, "method CombatEventIngest not implemented")
@@ -273,6 +321,42 @@ func _Loggingway_Login_Handler(srv interface{}, ctx context.Context, dec func(in
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(LoggingwayServer).Login(ctx, req.(*LoginRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Loggingway_SessionRefresh_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SessionRefreshRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(LoggingwayServer).SessionRefresh(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Loggingway_SessionRefresh_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(LoggingwayServer).SessionRefresh(ctx, req.(*SessionRefreshRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Loggingway_Logout_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(LogoutRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(LoggingwayServer).Logout(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Loggingway_Logout_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(LoggingwayServer).Logout(ctx, req.(*LogoutRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -403,6 +487,24 @@ func _Loggingway_EnrollCharacters_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Loggingway_GetLeaderBoard_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetLeaderBoardRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(LoggingwayServer).GetLeaderBoard(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Loggingway_GetLeaderBoard_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(LoggingwayServer).GetLeaderBoard(ctx, req.(*GetLeaderBoardRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Loggingway_CombatEventIngest_Handler(srv interface{}, stream grpc.ServerStream) error {
 	return srv.(LoggingwayServer).CombatEventIngest(&grpc.GenericServerStream[CombatEvent, CombatEventIngestReturn]{ServerStream: stream})
 }
@@ -424,6 +526,14 @@ var Loggingway_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Login",
 			Handler:    _Loggingway_Login_Handler,
+		},
+		{
+			MethodName: "SessionRefresh",
+			Handler:    _Loggingway_SessionRefresh_Handler,
+		},
+		{
+			MethodName: "Logout",
+			Handler:    _Loggingway_Logout_Handler,
 		},
 		{
 			MethodName: "CreateNewReport",
@@ -452,6 +562,10 @@ var Loggingway_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "EnrollCharacters",
 			Handler:    _Loggingway_EnrollCharacters_Handler,
+		},
+		{
+			MethodName: "GetLeaderBoard",
+			Handler:    _Loggingway_GetLeaderBoard_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{
