@@ -18,6 +18,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/noevain/xivauthgo"
+	"github.com/rs/zerolog"
 	"golang.org/x/oauth2"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -35,6 +36,7 @@ type loggingWayServer struct {
 	Publisher      *redisservice.Publisher
 	Sessioner      *redisservice.RedisSessionService
 	Stater         *redisservice.RedisStateStoreService
+	Logger         *zerolog.Logger
 }
 
 type Report struct {
@@ -141,6 +143,7 @@ func newServer() *loggingWayServer {
 	if err != nil {
 		log.Fatalf("Failed to create database conn pool:%v", err)
 	}
+	logger := zerolog.New(os.Stderr).With().Timestamp().Logger()
 	s := &loggingWayServer{
 		oauthConfig: xivauthgo.OAuth2Config(
 			os.Getenv("XIVAUTH_CLIENT_ID"),
@@ -155,7 +158,8 @@ func newServer() *loggingWayServer {
 		Publisher:      rediserv,
 		Sessioner:      redisesion,
 		Stater:         redistate,
-		connpool:       connPool}
+		connpool:       connPool,
+		Logger:         &logger}
 	fmt.Println("gRPC server init completed")
 	return s
 }
@@ -477,10 +481,14 @@ func main() {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	logway := newServer()
-	grpcServer := grpc.NewServer(grpc.ChainUnaryInterceptor(
-		auth.UnaryServerInterceptor(logway.Sessioner.AuthFunc),
-	),
-		grpc.ChainStreamInterceptor(auth.StreamServerInterceptor(logway.Sessioner.AuthFunc)))
+	grpcServer := grpc.NewServer(
+		grpc.ChainUnaryInterceptor(
+			auth.UnaryServerInterceptor(logway.Sessioner.AuthFunc),
+		),
+		grpc.ChainStreamInterceptor(
+			auth.StreamServerInterceptor(logway.Sessioner.AuthFunc),
+		),
+	)
 	lg.RegisterLoggingwayServer(grpcServer, logway)
 	grpcServer.Serve(lis)
 }
