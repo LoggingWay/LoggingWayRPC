@@ -472,7 +472,7 @@ func generateState() (string, error) {
 }
 
 func main() {
-	lis, err := net.Listen("tcp", fmt.Sprintf("localhost:%d", 8085))
+	lis, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", 8085))
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
