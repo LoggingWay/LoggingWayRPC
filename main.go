@@ -168,6 +168,7 @@ func (s *loggingWayServer) GetXivAuthRedirect(ctx context.Context, request *lg.G
 	//fmt.Println(grpc.Method(ctx))
 	state, err := generateState()
 	if err != nil {
+		s.Logger.Err(err).Stack().Msg("State generation failed")
 		st := status.New(codes.Internal, "State generation failed")
 		return nil, st.Err()
 	}
@@ -184,23 +185,28 @@ func (s *loggingWayServer) Login(ctx context.Context, request *lg.LoginRequest) 
 	//check state
 	_, err := s.Stater.GetState(ctx, request.State)
 	if err != nil {
+		s.Logger.Err(err).Stack().Msg("State expired or mismatch")
 		return nil, status.Error(codes.DeadlineExceeded, "State expired or mismatch")
 	}
 	//maybe later implement user-agent/IP match idk
 	token, err := s.xivAuthService.GetToken(request.Code)
 	if err != nil {
+		s.Logger.Err(err).Stack().Msg("Incorrect code")
 		return nil, status.Error(codes.InvalidArgument, "Incorrect code")
 	}
 	user, err := s.xivAuthService.GetUser(token.AccessToken)
 	if err != nil {
+		s.Logger.Err(err).Stack().Msg("Token obtained but failed to get user info")
 		return nil, status.Error(codes.Unknown, "Token obtained but failed to get user info")
 	}
 	character, err := s.xivAuthService.GetCharacters(token.AccessToken)
 	if err != nil {
+		s.Logger.Err(err).Stack().Msg("Could not retrieve characters")
 		return nil, status.Error(codes.Unknown, "Could not retrieve characters")
 	}
 	conn, err := s.connpool.Acquire(ctx)
 	if err != nil {
+		s.Logger.Err(err).Stack().Msg("Failed to acquire db connection")
 		return nil, status.Error(codes.Aborted, "Failed to acquire db connection")
 	}
 	tx, err := conn.BeginTx(ctx, pgx.TxOptions{
@@ -209,6 +215,7 @@ func (s *loggingWayServer) Login(ctx context.Context, request *lg.LoginRequest) 
 		DeferrableMode: pgx.NotDeferrable,
 	})
 	if err != nil {
+		s.Logger.Err(err).Stack().Msg("Failed to create transaction")
 		return nil, status.Error(codes.Aborted, "Failed to create transaction")
 	}
 	defer tx.Rollback(ctx) //auto-fails if tx is commited before this fct returns
@@ -221,7 +228,7 @@ func (s *loggingWayServer) Login(ctx context.Context, request *lg.LoginRequest) 
 	var myuserID uuid.UUID
 	err = tx.QueryRow(ctx, query, user.ID, "None", true).Scan(&myuserID)
 	if err != nil { //if conflict,no row returned so we can skip the character insert
-		s.Logger.Err(err).Msg("Error while inserting/updating user")
+		s.Logger.Err(err).Stack().Msg("Error while inserting/updating user")
 		return nil, status.Error(codes.Internal, "Failed to insert/update user")
 	}
 	sessionData := redisservice.UserSession{
@@ -233,6 +240,7 @@ func (s *loggingWayServer) Login(ctx context.Context, request *lg.LoginRequest) 
 	sessionID := uuid.NewString()
 	err = s.Sessioner.CreateSession(ctx, sessionID, sessionData)
 	if err != nil {
+		s.Logger.Err(err).Stack().Msg("Failed to create session")
 		return nil, status.Error(codes.Internal, "Failed to create session")
 	}
 
@@ -241,7 +249,7 @@ func (s *loggingWayServer) Login(ctx context.Context, request *lg.LoginRequest) 
 	for _, char := range sessionData.Characters {
 		_, err := tx.Exec(ctx, query_char, char.PersistentKey, myuserID, char.LodestoneID, char.AvatarURL, char.PortraitURL, char.Name, char.DataCenter, char.HomeWorld)
 		if err != nil {
-			s.Logger.Err(err).Msg("Error while inserting characters_claim")
+			s.Logger.Err(err).Stack().Msg("Error while inserting characters_claim")
 		}
 	}
 	//NOTE:I created EnrollCharacter but it's unused for now, so there is no way to add a character without logging out then in
@@ -255,6 +263,7 @@ func (s *loggingWayServer) Logout(ctx context.Context, request *lg.LogoutRequest
 	token := md["authorization"]
 	err := s.Sessioner.DeleteSession(ctx, token[0])
 	if err != nil {
+		s.Logger.Err(err).Stack().Msg("Error while loging out")
 		return nil, status.Error(codes.InvalidArgument, "Session was either not found or already dead")
 	}
 	return &lg.LogoutReply{}, nil
@@ -268,10 +277,12 @@ func (s *loggingWayServer) GetMyCharacters(ctx context.Context, request *lg.GetM
 	fmt.Println("Refresh token:", sessiondata.AccessToken.RefreshToken)
 	token, err := tksource.Token()
 	if err != nil {
+		s.Logger.Err(err).Stack().Msg("Token expired or revoked")
 		return nil, status.Error(codes.Aborted, "Token expired or revoked")
 	}
 	chars, err := s.xivAuthService.GetCharacters(token.AccessToken)
 	if err != nil {
+		s.Logger.Err(err).Stack().Msg("Failed to retrieve characters from XIVAuth")
 		return nil, status.Error(codes.NotFound, "Failed to retrieve characters from XIVAuth")
 	}
 	var charlist []*lg.Character
@@ -287,7 +298,7 @@ func (s *loggingWayServer) GetMyEncounters(ctx context.Context, request *lg.GetM
 	sessiondata := ctx.Value("sessionData").(*redisservice.UserSession)
 	conn, err := s.connpool.Acquire(ctx)
 	if err != nil {
-		fmt.Printf("error:%v", err)
+		s.Logger.Err(err).Stack().Msg("Failed to get encounters")
 		return nil, status.Error(codes.Internal, "Failed to get encounters")
 	}
 	defer conn.Release()
@@ -300,7 +311,7 @@ func (s *loggingWayServer) GetMyEncounters(ctx context.Context, request *lg.GetM
 	WHERE uploaded_by = $1 LIMIT 20;`
 		encounters, err = conn.Query(ctx, query, sessiondata.UserID)
 		if err != nil {
-			fmt.Println(err)
+			s.Logger.Err(err).Stack().Msg("Failed to read encounters")
 			return nil, status.Error(codes.NotFound, "Failed to read encounters")
 		}
 	} else {
@@ -309,25 +320,25 @@ func (s *loggingWayServer) GetMyEncounters(ctx context.Context, request *lg.GetM
 	WHERE uploaded_by = $1 AND cfc_id = $2 LIMIT 20;`
 		encounters, err = conn.Query(ctx, query, sessiondata.UserID, request.ZoneId)
 		if err != nil {
-			fmt.Println(err)
+			s.Logger.Err(err).Stack().Msg("Failed to read encounters")
 			return nil, status.Error(codes.NotFound, "Failed to read encounters")
 		}
 	}
 	for encounters.Next() {
-		var s EncounterNoPayload
+		var ss EncounterNoPayload
 		if err := encounters.Scan(
-			&s.ID,
-			&s.zone_id,
-			&s.uploaded_at,
-			&s.uploaded_by,
+			&ss.ID,
+			&ss.zone_id,
+			&ss.uploaded_at,
+			&ss.uploaded_by,
 		); err != nil {
-			fmt.Println("scan error:", err)
+			s.Logger.Err(err).Stack().Msg("Scan error")
 			continue
 		}
 		encounterslist = append(encounterslist, &lg.Encounter{
-			EncounterId: s.ID,
-			ZoneId:      uint32(s.zone_id),
-			UploadedAt:  s.uploaded_at.Unix(),
+			EncounterId: ss.ID,
+			ZoneId:      uint32(ss.zone_id),
+			UploadedAt:  ss.uploaded_at.Unix(),
 		})
 	}
 	return &lg.GetMyEncountersReply{Encounters: encounterslist}, nil
@@ -343,6 +354,7 @@ func (s *loggingWayServer) EncounterIngest(ctx context.Context, request *lg.NewE
 func (s *loggingWayServer) GetEncountersStats(ctx context.Context, request *lg.GetEncountersStatsRequest) (*lg.GetEncountersStatsReply, error) {
 	conn, err := s.connpool.Acquire(ctx)
 	if err != nil {
+		s.Logger.Err(err).Stack().Msg("Failed to acquire db connection")
 		return nil, status.Error(codes.Aborted, "Failed to acquire db connection")
 	}
 	defer conn.Release()
@@ -383,7 +395,7 @@ WHERE eps.encounter_id = $1` //This query is fairly heavy and could use a little
 		&queried.CreatedAt,
 		&queried.CfcId)
 	if err != nil {
-		fmt.Println("scan error:", err)
+		s.Logger.Err(err).Stack().Msg("Encounter ID not found")
 		return nil, status.Error(codes.NotFound, "Encounter ID not found")
 	}
 	if queried.uploaded_by != userid {
@@ -402,12 +414,14 @@ WHERE eps.encounter_id = $1` //This query is fairly heavy and could use a little
 	encounterResponse.JobId = uint32(queried.JobId)
 	rank, total, err := s.Publisher.GetEncounterRankPerJob(ctx, queried.character, uint32(queried.CfcId), uint32(queried.JobId))
 	if err != nil { //err is not just redis.Nil
+		s.Logger.Err(err).Stack().Msg("Leaderboard lookup failed very hard")
 		return nil, status.Error(codes.Unknown, "Leaderboard lookup failed very hard")
 	}
 	encounterResponse.Rank = rank
 	encounterResponse.TotalRanked = total
 	global, tglobal, err := s.Publisher.GetEncounterRank(ctx, queried.character, uint32(queried.CfcId))
 	if err != nil {
+		s.Logger.Err(err).Stack().Msg("Leaderboard lookup failed very hard")
 		return nil, status.Error(codes.Unknown, "Leaderboard lookup failed very hard")
 	}
 	encounterResponse.GlobalRank = global
@@ -419,7 +433,7 @@ WHERE eps.encounter_id = $1` //This query is fairly heavy and could use a little
 func (s *loggingWayServer) GetLeaderBoard(ctx context.Context, request *lg.GetLeaderBoardRequest) (*lg.GetLeaderBoardReply, error) {
 	conn, err := s.connpool.Acquire(ctx)
 	if err != nil {
-		fmt.Printf("error:%v", err)
+		s.Logger.Err(err).Stack().Msg("Failed to get leaderboard")
 		return nil, status.Error(codes.Internal, "Failed to get leaderboard")
 	}
 	defer conn.Release()
@@ -429,6 +443,7 @@ func (s *loggingWayServer) GetLeaderBoard(ctx context.Context, request *lg.GetLe
 	}
 	entries, total, err := s.Publisher.GetLeaderboard(ctx, request.ZoneId, jobid)
 	if err != nil {
+		s.Logger.Err(err).Stack().Msg("Failed to pull leaderboard info")
 		return nil, status.Error(codes.Internal, "Failed to pull leaderboard info")
 	}
 	characterIDs := make([]string, len(entries))
@@ -441,7 +456,7 @@ func (s *loggingWayServer) GetLeaderBoard(ctx context.Context, request *lg.GetLe
         WHERE id = ANY($1)`,
 		characterIDs)
 	if err != nil {
-		fmt.Println("failed to enrich leaderboard: %w", err)
+		s.Logger.Err(err).Stack().Msg("Failed to pull leaderboard info(pgsql)")
 		return nil, status.Error(codes.Internal, "Failed to pull leaderboard info(pgsql)")
 	}
 	defer rows.Close()
@@ -450,6 +465,7 @@ func (s *loggingWayServer) GetLeaderBoard(ctx context.Context, request *lg.GetLe
 		var id string
 		var c charDataLeaderboard
 		if err := rows.Scan(&id, &c.Name, &c.Homeworld, &c.Datacenter); err != nil {
+			s.Logger.Err(err).Stack().Msg("Failed to bind char and leaderboard data impossible bug challenge")
 			return nil, status.Error(codes.Internal, "Failed to bind character and leaderboard data?")
 		}
 		charMap[id] = c
