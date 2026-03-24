@@ -221,6 +221,7 @@ func (s *loggingWayServer) Login(ctx context.Context, request *lg.LoginRequest) 
 	var myuserID uuid.UUID
 	err = tx.QueryRow(ctx, query, user.ID, "None", true).Scan(&myuserID)
 	if err != nil { //if conflict,no row returned so we can skip the character insert
+		s.Logger.Err(err).Msg("Error while inserting/updating user")
 		return nil, status.Error(codes.Internal, "Failed to insert/update user")
 	}
 	sessionData := redisservice.UserSession{
@@ -240,7 +241,7 @@ func (s *loggingWayServer) Login(ctx context.Context, request *lg.LoginRequest) 
 	for _, char := range sessionData.Characters {
 		_, err := tx.Exec(ctx, query_char, char.PersistentKey, myuserID, char.LodestoneID, char.AvatarURL, char.PortraitURL, char.Name, char.DataCenter, char.HomeWorld)
 		if err != nil {
-			fmt.Println(err)
+			s.Logger.Err(err).Msg("Error while inserting characters_claim")
 		}
 	}
 	//NOTE:I created EnrollCharacter but it's unused for now, so there is no way to add a character without logging out then in
